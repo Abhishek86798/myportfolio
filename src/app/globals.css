@@ -1,0 +1,196 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Monochrome ramp — light mode */
+  --color-bg: #ffffff;
+  --color-bg-subtle: #f7f7f8;
+  --color-surface: #ffffff;
+  --color-border: #e5e5e7;
+  --color-fg: #111113;
+  --color-fg-muted: #6b6b70;
+  --color-fg-subtle: #9a9aa0;
+
+  /* Emerald accent — single accent color */
+  --color-accent: #10b981;
+  --color-accent-hover: #059669;
+  --color-accent-subtle: #d1fae5;
+  --color-accent-fg: #ffffff;
+
+  /* shadcn/ui primitive tokens — mapped onto our monochrome + emerald system */
+  --background: var(--color-bg);
+  --foreground: var(--color-fg);
+  --card: var(--color-surface);
+  --card-foreground: var(--color-fg);
+  --popover: var(--color-surface);
+  --popover-foreground: var(--color-fg);
+  --primary: var(--color-fg);
+  --primary-foreground: var(--color-bg);
+  --secondary: var(--color-bg-subtle);
+  --secondary-foreground: var(--color-fg);
+  --muted: var(--color-bg-subtle);
+  --muted-foreground: var(--color-fg-muted);
+  --accent: var(--color-accent-subtle);
+  --accent-foreground: var(--color-accent-hover);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: var(--color-border);
+  --input: var(--color-border);
+  --ring: var(--color-accent);
+  --radius: 0.625rem;
+}
+
+:root[data-theme="dark"],
+.dark {
+  --color-bg: #0a0a0b;
+  --color-bg-subtle: #131315;
+  --color-surface: #18181b;
+  --color-border: #2a2a2e;
+  --color-fg: #f2f2f3;
+  --color-fg-muted: #a1a1a8;
+  --color-fg-subtle: #6b6b70;
+
+  --color-accent: #34d399;
+  --color-accent-hover: #6ee7b7;
+  --color-accent-subtle: #064e3b;
+  --color-accent-fg: #062018;
+
+  --background: var(--color-bg);
+  --foreground: var(--color-fg);
+  --card: var(--color-surface);
+  --card-foreground: var(--color-fg);
+  --popover: var(--color-surface);
+  --popover-foreground: var(--color-fg);
+  --primary: var(--color-fg);
+  --primary-foreground: var(--color-bg);
+  --secondary: var(--color-bg-subtle);
+  --secondary-foreground: var(--color-fg);
+  --muted: var(--color-bg-subtle);
+  --muted-foreground: var(--color-fg-muted);
+  --accent: var(--color-accent-subtle);
+  --accent-foreground: var(--color-accent-hover);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: var(--color-border);
+  --input: var(--color-border);
+  --ring: var(--color-accent);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg: #0a0a0b;
+    --color-bg-subtle: #131315;
+    --color-surface: #18181b;
+    --color-border: #2a2a2e;
+    --color-fg: #f2f2f3;
+    --color-fg-muted: #a1a1a8;
+    --color-fg-subtle: #6b6b70;
+
+    --color-accent: #34d399;
+    --color-accent-hover: #6ee7b7;
+    --color-accent-subtle: #064e3b;
+    --color-accent-fg: #062018;
+
+    --background: var(--color-bg);
+    --foreground: var(--color-fg);
+    --card: var(--color-surface);
+    --card-foreground: var(--color-fg);
+    --popover: var(--color-surface);
+    --popover-foreground: var(--color-fg);
+    --primary: var(--color-fg);
+    --primary-foreground: var(--color-bg);
+    --secondary: var(--color-bg-subtle);
+    --secondary-foreground: var(--color-fg);
+    --muted: var(--color-bg-subtle);
+    --muted-foreground: var(--color-fg-muted);
+    --accent: var(--color-accent-subtle);
+    --accent-foreground: var(--color-accent-hover);
+    --border: var(--color-border);
+    --input: var(--color-border);
+    --ring: var(--color-accent);
+  }
+}
+
+@theme inline {
+  --color-background: var(--color-bg);
+  --color-background-subtle: var(--color-bg-subtle);
+  --color-surface: var(--color-surface);
+  --color-border: var(--color-border);
+  --color-foreground: var(--color-fg);
+  --color-foreground-muted: var(--color-fg-muted);
+  --color-foreground-subtle: var(--color-fg-subtle);
+
+  --color-accent: var(--color-accent);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-accent-subtle: var(--color-accent-subtle);
+  --color-accent-foreground: var(--color-accent-fg);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  /* Typography scale — oversized headings per design philosophy */
+  --text-display: 4.5rem;       /* 72px — name / hero */
+  --text-display--line-height: 1.05;
+  --text-display--letter-spacing: -0.02em;
+
+  --text-title: 1.75rem;        /* 28px — role / section subtitle */
+  --text-title--line-height: 1.3;
+  --text-title--letter-spacing: -0.01em;
+
+  --text-body-lg: 1.125rem;     /* 18px — taglines, lede paragraphs */
+  --text-body-lg--line-height: 1.6;
+
+  --text-body: 1rem;            /* 16px — default body */
+  --text-body--line-height: 1.6;
+
+  --text-small: 0.875rem;       /* 14px — captions, labels */
+  --text-small--line-height: 1.5;
+
+  /* shadcn/ui primitive token bridge */
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-destructive: var(--destructive);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
