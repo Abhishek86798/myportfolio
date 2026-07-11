@@ -7,12 +7,19 @@ import { siteConfig } from "@/data/site.config";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { cn } from "@/lib/utils";
 
+// `desktop: false` keeps a section out of the (space-constrained) desktop bar
+// while still showing it in the roomier mobile menu. Scroll-spy observes all.
 const NAV_LINKS = [
   { href: "#about", id: "about", label: "About" },
+  { href: "#journey", id: "journey", label: "Journey" },
   { href: "#experience", id: "experience", label: "Experience" },
   { href: "#skills", id: "skills", label: "Skills" },
   { href: "#projects", id: "projects", label: "Projects" },
+  { href: "#dashboard", id: "dashboard", label: "Dashboard", desktop: false },
+  { href: "#blog", id: "blog", label: "Blog" },
 ];
+
+const DESKTOP_LINKS = NAV_LINKS.filter((l) => l.desktop !== false);
 
 /** Scroll-spy: highlights the nav link for the section currently in view. */
 function useActiveSection(ids: string[]) {
@@ -110,9 +117,9 @@ export function Nav() {
         </Link>
 
         <div className="flex items-center gap-1">
-          {/* Desktop links */}
+          {/* Desktop links (space-constrained subset) */}
           <ul className="mr-2 hidden items-center gap-1 md:flex">
-            {NAV_LINKS.map((link) => (
+            {DESKTOP_LINKS.map((link) => (
               <li key={link.href}>
                 <a
                   href={link.href}

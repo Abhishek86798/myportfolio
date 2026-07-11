@@ -1,6 +1,7 @@
 import { ArrowUpRight } from "lucide-react";
 import { GithubIcon } from "@/components/ui/brand-icons";
 import { Section, SectionHeading } from "@/components/ui/section";
+import { Reveal } from "@/components/ui/reveal";
 import { projects } from "@/data/projects";
 
 export function Projects() {
@@ -9,9 +10,9 @@ export function Projects() {
       <SectionHeading eyebrow="What I've built">Projects</SectionHeading>
 
       <div className="grid grid-cols-1 gap-6">
-        {projects.map((project) => (
+        {projects.map((project, i) => (
+          <Reveal key={project.slug} delay={i * 0.05}>
           <article
-            key={project.slug}
             className="group relative rounded-2xl border border-border bg-surface p-6 transition-all hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-lg hover:shadow-accent/10 active:translate-y-0 md:p-8"
           >
             <div className="flex items-start justify-between gap-4">
@@ -61,6 +62,7 @@ export function Projects() {
               </a>
             ) : null}
           </article>
+          </Reveal>
         ))}
       </div>
     </Section>

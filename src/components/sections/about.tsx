@@ -1,5 +1,6 @@
 import { MapPin, Code2, ShieldCheck, Rocket, type LucideIcon } from "lucide-react";
 import { Section, SectionHeading } from "@/components/ui/section";
+import { Reveal } from "@/components/ui/reveal";
 import { siteConfig } from "@/data/site.config";
 
 const ICONS: Record<string, LucideIcon> = {
@@ -15,11 +16,12 @@ export function About() {
       <SectionHeading eyebrow="Who I am">About</SectionHeading>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {siteConfig.about.map((item) => {
+        {siteConfig.about.map((item, i) => {
           const Icon = ICONS[item.icon];
           return (
-            <div
+            <Reveal
               key={item.label}
+              delay={i * 0.05}
               className="group flex items-center gap-4 rounded-2xl border border-border bg-surface px-6 py-5 text-body text-foreground transition-colors hover:border-accent/50"
             >
               {Icon ? (
@@ -28,7 +30,7 @@ export function About() {
                 </span>
               ) : null}
               <span className="font-medium">{item.label}</span>
-            </div>
+            </Reveal>
           );
         })}
       </div>

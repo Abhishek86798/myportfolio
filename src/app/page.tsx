@@ -1,12 +1,27 @@
 import { Nav } from "@/components/nav";
 import { Hero } from "@/components/sections/hero";
 import { About } from "@/components/sections/about";
+import { Journey } from "@/components/sections/journey";
 import { Experience } from "@/components/sections/experience";
 import { Skills } from "@/components/sections/skills";
 import { Projects } from "@/components/sections/projects";
+import { Dashboard } from "@/components/sections/dashboard";
+import { Blog } from "@/components/sections/blog";
 import { Footer } from "@/components/sections/footer";
+import { getGitHubStats } from "@/lib/data/github";
+import { getCodingStats } from "@/lib/data/codolio";
+import { getAllPosts } from "@/lib/blog";
 
-export default function Home() {
+// Rebuild the page's live data at most hourly (ISR) — §0.
+export const revalidate = 3600;
+
+export default async function Home() {
+  const [stats, coding, posts] = await Promise.all([
+    getGitHubStats(),
+    getCodingStats(),
+    getAllPosts(),
+  ]);
+
   return (
     <>
       <a
@@ -19,9 +34,12 @@ export default function Home() {
       <main id="main" tabIndex={-1} className="flex flex-1 flex-col outline-none">
         <Hero />
         <About />
+        <Journey />
         <Experience />
         <Skills />
         <Projects />
+        <Dashboard stats={stats} coding={coding} />
+        <Blog posts={posts} />
       </main>
       <Footer />
     </>

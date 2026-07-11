@@ -1,4 +1,5 @@
 import { Section, SectionHeading } from "@/components/ui/section";
+import { Reveal } from "@/components/ui/reveal";
 import { skillGroups } from "@/data/skills";
 
 export function Skills() {
@@ -7,8 +8,8 @@ export function Skills() {
       <SectionHeading eyebrow="What I work with">Skills</SectionHeading>
 
       <div className="grid grid-cols-1 gap-x-8 gap-y-10 sm:grid-cols-2">
-        {skillGroups.map((group) => (
-          <div key={group.category}>
+        {skillGroups.map((group, i) => (
+          <Reveal key={group.category} delay={i * 0.05}>
             <h3 className="text-small font-medium uppercase tracking-widest text-foreground-subtle">
               {group.category}
             </h3>
@@ -22,7 +23,7 @@ export function Skills() {
                 </span>
               ))}
             </div>
-          </div>
+          </Reveal>
         ))}
       </div>
     </Section>

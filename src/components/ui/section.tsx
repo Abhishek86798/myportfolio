@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { Reveal } from "@/components/ui/reveal";
 
 /**
  * Systemized section rhythm — every major section uses the same vertical
@@ -36,7 +37,7 @@ export function SectionHeading({
   children: React.ReactNode;
 }) {
   return (
-    <div className="mb-12 md:mb-16">
+    <Reveal className="mb-12 md:mb-16">
       {eyebrow ? (
         <p className="mb-3 flex items-center gap-2 text-small font-medium uppercase tracking-widest text-foreground-muted">
           <span className="h-px w-6 bg-accent" aria-hidden />
@@ -46,6 +47,6 @@ export function SectionHeading({
       <h2 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl md:text-6xl">
         {children}
       </h2>
-    </div>
+    </Reveal>
   );
 }

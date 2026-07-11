@@ -1,4 +1,5 @@
 import { Section, SectionHeading } from "@/components/ui/section";
+import { Reveal } from "@/components/ui/reveal";
 import { experience } from "@/data/experience";
 
 export function Experience() {
@@ -7,9 +8,10 @@ export function Experience() {
       <SectionHeading eyebrow="Where I've worked">Experience</SectionHeading>
 
       <div className="flex flex-col gap-6">
-        {experience.map((job) => (
-          <div
+        {experience.map((job, i) => (
+          <Reveal
             key={`${job.org}-${job.period}`}
+            delay={i * 0.05}
             className="group rounded-2xl border border-border bg-surface p-6 transition-colors hover:border-accent/50 md:p-8"
           >
             <div className="flex flex-col justify-between gap-1 sm:flex-row sm:items-baseline">
@@ -45,7 +47,7 @@ export function Experience() {
                 </span>
               ))}
             </div>
-          </div>
+          </Reveal>
         ))}
       </div>
     </Section>

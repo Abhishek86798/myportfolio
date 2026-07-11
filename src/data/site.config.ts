@@ -8,6 +8,11 @@ export const siteConfig = {
     label: "Currently Building",
     project: "MCP Zero-Trust Security Gateway",
   },
+  // Static dashboard values — "set at launch, refresh occasionally" (§5, §6).
+  // DSA counts are now live via Codolio (see lib/data/codolio.ts).
+  dashboard: {
+    reading: "Designing Data-Intensive Applications",
+  },
   links: {
     github: "https://github.com/Abhishek86798",
     linkedin: "https://www.linkedin.com/in/abhishek-kokadwar/",
