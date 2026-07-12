@@ -37,7 +37,7 @@ export const projects: Project[] = [
       // architectureNodes: filled in during Phase 1.5 — Content Day (§4a, §8)
     },
     techStack: ["Python", "FastAPI", "Docker", "SQLite", "React", "Tailwind CSS"],
-    github: "https://github.com/Abhishek86798",
+    github: "https://github.com/nabrahma/MCP_Zero-Trust_Gateway_BTP",
   },
   {
     slug: "ayusynapse",

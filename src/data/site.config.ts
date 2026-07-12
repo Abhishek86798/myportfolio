@@ -19,7 +19,7 @@ export const siteConfig = {
     email: "mailto:abhikokadwar2@gmail.com",
     phone: "+91-9307229712",
     codolio: "https://codolio.com/profile/abhishek_1005",
-    resume: "/micro__resume79.pdf",
+    resume: "/resume.pdf",
   },
   about: [
     { icon: "map-pin", label: "IIITM Gwalior — B.Tech IT + MBA" },

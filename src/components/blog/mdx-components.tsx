@@ -36,7 +36,7 @@ export const mdxComponents = {
     </h3>
   ),
   p: (props: ComponentPropsWithoutRef<"p">) => (
-    <p className="mt-6 text-body-lg leading-[1.8] text-foreground-muted" {...props} />
+    <p className="mt-6 text-body-lg leading-[1.75] text-foreground-muted" {...props} />
   ),
   a: ({ href, ...props }: ComponentPropsWithoutRef<"a">) => (
     <a

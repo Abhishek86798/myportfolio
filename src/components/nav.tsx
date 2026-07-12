@@ -147,9 +147,9 @@ export function Nav() {
             aria-label="Open menu"
             aria-expanded={menuOpen}
             aria-haspopup="dialog"
-            className="inline-flex h-9 w-9 touch-manipulation items-center justify-center rounded-lg border border-border text-foreground-muted transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background md:hidden"
+            className="inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-lg border border-border text-foreground-muted transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background md:hidden"
           >
-            <Menu className="h-4 w-4" aria-hidden />
+            <Menu className="h-5 w-5" aria-hidden />
           </button>
         </div>
       </nav>

@@ -14,10 +14,49 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://abhishekkokadwar.com";
+
+const title = "Abhishek Kokadwar — Software Engineer";
+const description =
+  "Building AI systems, backend infrastructure, and security tooling. B.Tech IT + MBA student at IIITM Gwalior.";
+
 export const metadata: Metadata = {
-  title: "Abhishek Kokadwar — Software Engineer",
-  description:
-    "Building AI systems, backend infrastructure, and security tooling. B.Tech IT + MBA student at IIITM Gwalior.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: title,
+    template: "%s — Abhishek Kokadwar",
+  },
+  description,
+  keywords: [
+    "Abhishek Kokadwar",
+    "Software Engineer",
+    "AI systems",
+    "backend",
+    "security",
+    "IIITM Gwalior",
+  ],
+  authors: [{ name: "Abhishek Kokadwar" }],
+  creator: "Abhishek Kokadwar",
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    url: SITE_URL,
+    siteName: "Abhishek Kokadwar",
+    title,
+    description,
+    // opengraph-image.tsx is picked up automatically by Next.
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large" },
+  },
 };
 
 export const viewport: Viewport = {
