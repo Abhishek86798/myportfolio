@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { siteConfig } from "@/data/site.config";
@@ -52,6 +53,11 @@ export function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  // Portal target — the header's backdrop-blur creates a containing block for
+  // `position: fixed` descendants, which traps the overlay inside its own
+  // (content-sized) box instead of the viewport. Render outside it instead.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   // Lock body scroll while the mobile menu is open.
   useEffect(() => {
@@ -154,54 +160,57 @@ export function Nav() {
         </div>
       </nav>
 
-      {/* Mobile menu overlay */}
-      {menuOpen ? (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <div
-            className="absolute inset-0 bg-background/60 backdrop-blur-sm"
-            onClick={() => setMenuOpen(false)}
-            aria-hidden
-          />
-          <div
-            ref={panelRef}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Navigation menu"
-            className="absolute right-0 top-0 flex h-full w-72 max-w-[80vw] flex-col border-l border-border bg-background p-6"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-body font-semibold text-foreground">Menu</span>
-              <button
-                type="button"
+      {/* Mobile menu overlay — portaled to document.body, see `mounted` note above */}
+      {menuOpen && mounted
+        ? createPortal(
+            <div className="fixed inset-0 z-[60] md:hidden">
+              <div
+                className="absolute inset-0 bg-background/60 backdrop-blur-sm"
                 onClick={() => setMenuOpen(false)}
-                aria-label="Close menu"
-                className="inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-lg border border-border text-foreground-muted transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                aria-hidden
+              />
+              <div
+                ref={panelRef}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Navigation menu"
+                className="absolute right-0 top-0 flex h-full w-72 max-w-[80vw] flex-col border-l border-border bg-background p-6"
               >
-                <X className="h-5 w-5" aria-hidden />
-              </button>
-            </div>
-            <ul className="mt-8 flex flex-col gap-1">
-              {NAV_LINKS.map((link) => (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
+                <div className="flex items-center justify-between">
+                  <span className="text-body font-semibold text-foreground">Menu</span>
+                  <button
+                    type="button"
                     onClick={() => setMenuOpen(false)}
-                    aria-current={active === link.id ? "true" : undefined}
-                    className={cn(
-                      "flex touch-manipulation items-center rounded-lg px-4 py-3 text-body transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                      active === link.id
-                        ? "bg-accent-subtle text-accent"
-                        : "text-foreground-muted hover:bg-background-subtle hover:text-foreground"
-                    )}
+                    aria-label="Close menu"
+                    className="inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-lg border border-border text-foreground-muted transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      ) : null}
+                    <X className="h-5 w-5" aria-hidden />
+                  </button>
+                </div>
+                <ul className="mt-8 flex flex-col gap-1">
+                  {NAV_LINKS.map((link) => (
+                    <li key={link.href}>
+                      <a
+                        href={link.href}
+                        onClick={() => setMenuOpen(false)}
+                        aria-current={active === link.id ? "true" : undefined}
+                        className={cn(
+                          "flex touch-manipulation items-center rounded-lg px-4 py-3 text-body transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                          active === link.id
+                            ? "bg-accent-subtle text-accent"
+                            : "text-foreground-muted hover:bg-background-subtle hover:text-foreground"
+                        )}
+                      >
+                        {link.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>,
+            document.body
+          )
+        : null}
     </header>
   );
 }

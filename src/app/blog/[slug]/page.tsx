@@ -5,6 +5,7 @@ import { MDXRemote } from "next-mdx-remote-client/rsc";
 import rehypeShiki from "@shikijs/rehype";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
+import { remarkUnwrapImages } from "@/lib/remark-unwrap-images";
 import type { Metadata } from "next";
 import { getPost, getPostSlugs } from "@/lib/blog";
 import { mdxComponents } from "@/components/blog/mdx-components";
@@ -89,7 +90,7 @@ export default async function BlogPostPage({
                 components={mdxComponents}
                 options={{
                   mdxOptions: {
-                    remarkPlugins: [remarkGfm],
+                    remarkPlugins: [remarkGfm, remarkUnwrapImages],
                     rehypePlugins: [
                       rehypeSlug,
                       [
