@@ -1,6 +1,17 @@
+/** A quantified impact stat, surfaced as a small accent stat in the card. */
+export type Metric = {
+  /** The figure, e.g. "8", "5", "900→4". Rendered in tabular-nums. */
+  value: string;
+  /** What it measures, e.g. "OWASP threats", "MCP servers". */
+  label: string;
+};
+
 export type Project = {
   slug: string;
   title: string;
+  /** Featured projects render as a larger card (asymmetric bento hierarchy). */
+  featured?: boolean;
+  metrics?: Metric[];
   recruiter: {
     overview: string;
     impact: string;
@@ -25,6 +36,12 @@ export const projects: Project[] = [
   {
     slug: "mcp-zero-trust-security-gateway",
     title: "MCP Zero-Trust Security Gateway",
+    featured: true,
+    metrics: [
+      { value: "8", label: "OWASP threats mapped" },
+      { value: "5", label: "MCP servers tested" },
+      { value: "900→4", label: "trace lines / tool" },
+    ],
     recruiter: {
       overview:
         "A zero-trust security gateway that sits between LLM agents and MCP tool servers, catching malicious or drifting tools before they execute.",
@@ -42,6 +59,11 @@ export const projects: Project[] = [
   {
     slug: "ayusynapse",
     title: "AyuSynapse — Clinical Trial Matching Pipeline",
+    metrics: [
+      { value: "Solo", label: "hackathon build" },
+      { value: "FHIR", label: "EMR parsing" },
+      { value: "RAG", label: "trial ranking" },
+    ],
     recruiter: {
       overview:
         "An AI-integrated pipeline that matches patients to clinical trials by reading their medical records and ranking eligible trials.",
