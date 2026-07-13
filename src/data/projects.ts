@@ -6,6 +6,18 @@ export type Metric = {
   label: string;
 };
 
+/** One stage in a project's architecture pipeline (§4a Explorer). */
+export type ArchitectureNode = {
+  id: string;
+  label: string;
+  /** Why this piece exists. */
+  why: string;
+  /** What it costs / what was given up. */
+  tradeoff: string;
+  /** The alternative considered and dropped, and why. */
+  rejected: string;
+};
+
 export type Project = {
   slug: string;
   title: string;
@@ -19,13 +31,7 @@ export type Project = {
   engineer: {
     summary: string;
     // Populated in Phase 1.5 (Content Day) for Explorer-eligible projects: §4a
-    architectureNodes?: Array<{
-      id: string;
-      label: string;
-      why: string;
-      tradeoff: string;
-      rejected: string;
-    }>;
+    architectureNodes?: ArchitectureNode[];
   };
   techStack: string[];
   github?: string;
@@ -50,8 +56,46 @@ export const projects: Project[] = [
     },
     engineer: {
       summary:
-        "Gateway → Verifier → Profiler → Sandbox → Tool pipeline. Manifest inspection, Docker sandbox profiling (seccomp/strace), and declared-vs-observed capability drift analysis. Runtime proxy streams verdicts to a React dashboard. Full node-level design decisions land in Phase 1.5 (Content Day).",
-      // architectureNodes: filled in during Phase 1.5 — Content Day (§4a, §8)
+        "Gateway → Verifier → Profiler → Sandbox → Tool pipeline. Manifest inspection, Docker sandbox profiling (seccomp/strace), and declared-vs-observed capability drift analysis. Runtime proxy streams verdicts to a React dashboard.",
+      // NOTE: DRAFT placeholder content — refine each why/tradeoff/rejected
+      // with your real decisions before shipping (§4a depth bar).
+      architectureNodes: [
+        {
+          id: "gateway",
+          label: "Gateway",
+          why: "A single entry point every tool call must pass through, so policy is enforced in one place instead of scattered across each MCP server.",
+          tradeoff: "Adds one network hop and a central component that must stay highly available — the gateway becomes a chokepoint if it goes down.",
+          rejected: "Per-server middleware (enforce inside each tool). Rejected because policy would drift across servers and every new server would re-implement security from scratch.",
+        },
+        {
+          id: "verifier",
+          label: "Verifier",
+          why: "Inspects each tool's manifest up front — declared capabilities, permissions, schemas — to reject obviously malicious or malformed tools before any execution.",
+          tradeoff: "Static inspection can't catch everything; a tool can declare innocent intent and misbehave at runtime, so the Verifier alone is insufficient.",
+          rejected: "Trusting the manifest as-is (declaration = truth). Rejected because a manifest is a claim, not a guarantee — which is exactly what the Profiler exists to check.",
+        },
+        {
+          id: "profiler",
+          label: "Profiler",
+          why: "Runs the tool under seccomp/strace in a throwaway sandbox to observe the syscalls it actually makes, then compares observed vs. declared capability.",
+          tradeoff: "Profiling costs real execution time and produces noisy traces — 900+ syscall lines per tool — that need aggressive filtering to be useful.",
+          rejected: "Full static analysis of tool code. Rejected because many MCP tools are opaque binaries or remote services with no source to analyze.",
+        },
+        {
+          id: "sandbox",
+          label: "Sandbox",
+          why: "Executes the tool with least-privilege — a locked-down Docker profile granting only the capabilities the Verifier approved — so a compromised tool can't reach the host.",
+          tradeoff: "Tight sandboxing can break legitimate tools that need broader access, requiring per-tool profile tuning rather than one universal policy.",
+          rejected: "Running tools in the host process for speed. Rejected outright — a single malicious tool would have full host access, defeating the entire point.",
+        },
+        {
+          id: "tool",
+          label: "Tool",
+          why: "The actual MCP tool server, now reached only after a verdict is issued — the proxy streams allow/deny decisions to a dashboard so drift is visible in real time.",
+          tradeoff: "The verdict pipeline adds latency before the tool responds; acceptable for a security boundary, but not free.",
+          rejected: "Post-hoc logging (let it run, audit later). Rejected because prohibited processing can't be undone after the fact — the check has to happen before execution.",
+        },
+      ],
     },
     techStack: ["Python", "FastAPI", "Docker", "SQLite", "React", "Tailwind CSS"],
     github: "https://github.com/nabrahma/MCP_Zero-Trust_Gateway_BTP",
