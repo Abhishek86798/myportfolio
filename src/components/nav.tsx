@@ -199,7 +199,7 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
                   <p className="mb-2 text-small font-medium uppercase tracking-widest text-foreground-subtle">
                     Viewing as
                   </p>
-                  <AudienceModeToggle className="w-full [&>button]:flex-1 [&>button]:justify-center" />
+                  <AudienceModeToggle full />
                 </div>
 
                 <ul className="mt-6 flex flex-col gap-1">
