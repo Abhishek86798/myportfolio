@@ -57,7 +57,11 @@ export function Spotlight({ items }: { items: SpotlightItem[] }) {
   const go = useCallback(
     (item: SpotlightItem) => {
       close();
-      if (item.external) {
+      const isProtocol = /^(mailto:|tel:)/.test(item.href);
+      if (isProtocol) {
+        // mailto:/tel: must navigate directly — window.open opens a dead tab.
+        window.location.href = item.href;
+      } else if (item.external) {
         window.open(item.href, "_blank", "noopener,noreferrer");
       } else if (item.href.startsWith("#")) {
         document.querySelector(item.href)?.scrollIntoView({ behavior: "smooth" });

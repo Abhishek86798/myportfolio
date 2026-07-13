@@ -1,5 +1,6 @@
 import { ArrowDown, ArrowUpRight, FileText, Mail } from "lucide-react";
 import { siteConfig } from "@/data/site.config";
+import { EmailAction } from "@/components/ui/email-action";
 
 export function Hero() {
   return (
@@ -43,13 +44,13 @@ export function Hero() {
             <FileText className="h-4 w-4" aria-hidden />
             Resume
           </a>
-          <a
-            href={siteConfig.links.email}
+          <EmailAction
+            aria-label="Email me (copies address)"
             className="inline-flex touch-manipulation items-center gap-2 rounded-lg border border-border px-5 py-2.5 text-small font-medium text-foreground transition-all hover:border-accent hover:text-accent active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             <Mail className="h-4 w-4" aria-hidden />
             Contact
-          </a>
+          </EmailAction>
         </div>
 
         {/* 3D accent hook — stubbed for Phase 3 (§4h) */}

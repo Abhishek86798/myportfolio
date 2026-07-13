@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { Section, SectionHeading } from "@/components/ui/section";
+import { useAudienceMode } from "@/components/audience-mode/context";
 import { journey } from "@/data/journey";
 
 // Spine geometry — single source of truth. The spine is the vertical center of
@@ -14,6 +15,8 @@ const DOT_LEFT = "left-[7px] md:left-[9px]"; // dot center x — same as spine
 
 export function Journey() {
   const [openId, setOpenId] = useState<string | null>(null);
+  const { mode } = useAudienceMode();
+  const isEngineer = mode === "engineer";
   const reduceMotion = useReducedMotion();
   const listRef = useRef<HTMLOListElement>(null);
 
@@ -42,7 +45,10 @@ export function Journey() {
         />
 
         {journey.map((m, i) => {
-          const isOpen = openId === m.id;
+          // Engineer mode auto-expands every node's technical detail (§4b),
+          // unless the visitor has explicitly collapsed this one.
+          const isOpen =
+            openId === m.id || (isEngineer && openId !== `closed-${m.id}`);
           const panelId = `journey-panel-${m.id}`;
           return (
             <motion.li
@@ -71,7 +77,15 @@ export function Journey() {
 
               <button
                 type="button"
-                onClick={() => setOpenId(isOpen ? null : m.id)}
+                onClick={() =>
+                  setOpenId(
+                    isOpen
+                      ? isEngineer
+                        ? `closed-${m.id}` // sentinel: explicitly collapsed in engineer mode
+                        : null
+                      : m.id
+                  )
+                }
                 aria-expanded={isOpen}
                 aria-controls={panelId}
                 className="block w-full touch-manipulation rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"

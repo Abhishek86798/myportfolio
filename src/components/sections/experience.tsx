@@ -1,9 +1,15 @@
+"use client";
+
+import { ArrowUpRight } from "lucide-react";
 import { Section, SectionHeading } from "@/components/ui/section";
 import { Reveal } from "@/components/ui/reveal";
 import { MetricRow } from "@/components/ui/metric-row";
+import { useAudienceMode } from "@/components/audience-mode/context";
 import { experience } from "@/data/experience";
 
 export function Experience() {
+  const { mode } = useAudienceMode();
+  const isEngineer = mode === "engineer";
   return (
     <Section id="experience" className="bg-background-subtle">
       <SectionHeading eyebrow="Where I've worked">Experience</SectionHeading>
@@ -25,7 +31,19 @@ export function Experience() {
                 <div className="flex flex-col justify-between gap-x-4 gap-y-0.5 sm:flex-row sm:items-baseline">
                   <h3 className="text-body-lg font-semibold text-foreground">
                     {job.role}{" "}
-                    <span className="text-accent">@ {job.org}</span>
+                    {job.orgUrl ? (
+                      <a
+                        href={job.orgUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex touch-manipulation items-center gap-0.5 rounded text-accent underline-offset-4 transition-colors hover:text-accent-hover hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                      >
+                        @ {job.org}
+                        <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
+                      </a>
+                    ) : (
+                      <span className="text-accent">@ {job.org}</span>
+                    )}
                   </h3>
                   <span className="shrink-0 text-small text-foreground-subtle">
                     {job.location} · {job.period}
@@ -51,6 +69,17 @@ export function Experience() {
                 </li>
               ))}
             </ul>
+
+            {/* Engineer mode adds deeper implementation notes (§4b) */}
+            {isEngineer && job.engineerHighlights && job.engineerHighlights.length > 0 ? (
+              <ul className="mt-3 flex flex-col gap-2 border-l-2 border-border pl-4">
+                {job.engineerHighlights.map((point) => (
+                  <li key={point} className="text-small text-foreground-muted">
+                    {point}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
 
             <div className="mt-5 flex flex-wrap gap-2">
               {job.stack.map((tech) => (

@@ -1,8 +1,13 @@
+"use client";
+
 import { Section, SectionHeading } from "@/components/ui/section";
 import { Reveal } from "@/components/ui/reveal";
+import { useAudienceMode } from "@/components/audience-mode/context";
 import { skillGroups } from "@/data/skills";
 
 export function Skills() {
+  const { mode } = useAudienceMode();
+  const isEngineer = mode === "engineer";
   return (
     <Section id="skills">
       <SectionHeading eyebrow="What I work with">Skills</SectionHeading>
@@ -23,6 +28,12 @@ export function Skills() {
                 </span>
               ))}
             </div>
+            {/* Engineer mode adds how/where each group is used (§4b) */}
+            {isEngineer && group.usage ? (
+              <p className="mt-3 text-small leading-relaxed text-foreground-muted">
+                {group.usage}
+              </p>
+            ) : null}
           </Reveal>
         ))}
       </div>

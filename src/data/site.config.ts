@@ -13,6 +13,8 @@ export const siteConfig = {
   dashboard: {
     reading: "Designing Data-Intensive Applications",
   },
+  // Raw email address; the `mailto:` link is derived where needed.
+  email: "abhikokadwar2@gmail.com",
   links: {
     github: "https://github.com/Abhishek86798",
     linkedin: "https://www.linkedin.com/in/abhishek-kokadwar/",

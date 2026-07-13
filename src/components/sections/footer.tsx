@@ -1,6 +1,7 @@
 import { Mail } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/ui/brand-icons";
 import { siteConfig } from "@/data/site.config";
+import { EmailAction } from "@/components/ui/email-action";
 
 const EXPLORING = ["AI Security", "Agent Systems", "Distributed Systems"];
 
@@ -51,6 +52,14 @@ export function Footer() {
             <Mail className="h-5 w-5" aria-hidden />
           </a>
         </div>
+
+        {/* Visible address — always readable/selectable, even with no mail client */}
+        <p className="mt-4 text-small text-foreground-muted">
+          Or reach me at{" "}
+          <EmailAction className="font-medium text-accent underline-offset-4 transition-colors hover:text-accent-hover hover:underline">
+            {siteConfig.email}
+          </EmailAction>
+        </p>
 
         <p className="mt-12 text-small text-foreground-subtle">
           © {new Date().getFullYear()} {siteConfig.name}. Built with Next.js.
