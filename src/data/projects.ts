@@ -61,8 +61,16 @@ export const projects: Project[] = [
     engineer: {
       summary:
         "Gateway → Verifier → Profiler → Sandbox → Tool pipeline. Manifest inspection, Docker sandbox profiling (seccomp/strace), and declared-vs-observed capability drift analysis. Runtime proxy streams verdicts to a React dashboard.",
-      // NOTE: DRAFT placeholder content — refine each why/tradeoff/rejected
-      // with your real decisions before shipping (§4a depth bar).
+      // ⚠️ REWRITE NEEDED — these 5 nodes are an AI-drafted SIMPLIFICATION and
+      // do NOT match the real system. The actual architecture is 7 layers in
+      // two phases (see content/projects/zerotrust/layer.md):
+      //   Onboarding: L1 Static Scanner · L2 Sandbox Profiler · L3 Comparator
+      //   Runtime:    L5 Runtime Proxy · L4 Policy Engine · L6 Response Filter
+      //   (+ L7 Dashboard, demo-only — keep out of the node flow)
+      // Missing from current nodes: the two-phase split, the L3 declared-vs-
+      // observed diff (rug-pull detection), metadata-poisoning + supply-chain
+      // scans, and response sanitization. Rewrite each node's why/tradeoff/
+      // rejected in your own words, then the component gets rebuilt to match.
       architectureNodes: [
         {
           id: "gateway",
