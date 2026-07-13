@@ -146,8 +146,12 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
             ))}
           </ul>
 
-          {/* Audience Mode — desktop only; mobile lives in the menu panel */}
-          <AudienceModeToggle className="mr-1 hidden sm:inline-flex" />
+          {/* Audience Mode — desktop only; mobile lives in the menu panel.
+              Wrapper controls visibility so it wins over the button's own
+              display utility. */}
+          <span className="mr-1 hidden sm:inline-flex">
+            <AudienceModeToggle />
+          </span>
           <Spotlight items={spotlightIndex} />
           <ThemeToggle />
 
@@ -212,7 +216,7 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
                         className={cn(
                           "flex touch-manipulation items-center rounded-lg px-4 py-3 text-body transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                           active === link.id
-                            ? "bg-accent-subtle text-accent"
+                            ? "bg-accent-subtle text-accent-strong-strong"
                             : "text-foreground-muted hover:bg-background-subtle hover:text-foreground"
                         )}
                       >

@@ -83,7 +83,7 @@ export function ArchitectureExplorer({ nodes }: { nodes: ArchitectureNode[] }) {
                 onClick={() => setActiveIndex(i)}
                 className={`inline-flex min-h-11 touch-manipulation items-center gap-2 rounded-lg border px-4 py-2 font-mono text-small transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
                   isActive
-                    ? "border-accent bg-accent-subtle text-accent"
+                    ? "border-accent bg-accent-subtle text-accent-strong"
                     : "border-border text-foreground-muted hover:border-accent/50 hover:text-foreground"
                 }`}
               >

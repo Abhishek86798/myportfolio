@@ -57,7 +57,7 @@ export function AudienceModeToggle({
         aria-label={ariaLabel}
         className={`inline-flex min-h-11 w-full touch-manipulation items-center justify-between rounded-lg border px-3 text-small font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
           isEngineer
-            ? "border-accent/50 bg-accent-subtle text-accent"
+            ? "border-accent/50 bg-accent-subtle text-accent-strong-strong"
             : "border-border bg-background-subtle text-foreground-muted"
         } ${className ?? ""}`}
       >
@@ -80,7 +80,7 @@ export function AudienceModeToggle({
       title={`Switch to ${nextLabel} view`}
       className={`relative inline-flex h-9 w-9 touch-manipulation items-center justify-center rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
         isEngineer
-          ? "border-accent/50 bg-accent-subtle text-accent"
+          ? "border-accent/50 bg-accent-subtle text-accent-strong-strong"
           : "border-border text-foreground-muted hover:border-accent hover:text-accent"
       } ${className ?? ""}`}
     >

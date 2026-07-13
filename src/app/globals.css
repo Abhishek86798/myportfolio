@@ -18,6 +18,9 @@
   --color-accent-hover: #059669;
   --color-accent-subtle: #d1fae5;
   --color-accent-fg: #ffffff;
+  /* Accessible accent text ON accent-subtle bg (≥4.5:1); accent itself is too
+     light here in light mode. */
+  --color-accent-strong: #047857;
 
   /* shadcn/ui primitive tokens — mapped onto our monochrome + emerald system */
   --background: var(--color-bg);
@@ -55,6 +58,7 @@
   --color-accent-hover: #6ee7b7;
   --color-accent-subtle: #064e3b;
   --color-accent-fg: #062018;
+  --color-accent-strong: #34d399;
 
   --background: var(--color-bg);
   --foreground: var(--color-fg);
@@ -90,6 +94,7 @@
     --color-accent-hover: #6ee7b7;
     --color-accent-subtle: #064e3b;
     --color-accent-fg: #062018;
+    --color-accent-strong: #34d399;
 
     --background: var(--color-bg);
     --foreground: var(--color-fg);
@@ -123,6 +128,7 @@
   --color-accent: var(--color-accent);
   --color-accent-hover: var(--color-accent-hover);
   --color-accent-subtle: var(--color-accent-subtle);
+  --color-accent-strong: var(--color-accent-strong);
   --color-accent-foreground: var(--color-accent-fg);
 
   --font-sans: var(--font-geist-sans);

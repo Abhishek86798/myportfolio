@@ -21,7 +21,7 @@ export function Experience() {
             <div className="flex items-start gap-4">
               {/* Company monogram — visual anchor per card */}
               <span
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent-subtle text-body-lg font-semibold text-accent"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent-subtle text-body-lg font-semibold text-accent-strong"
                 aria-hidden
               >
                 {job.org.charAt(0)}

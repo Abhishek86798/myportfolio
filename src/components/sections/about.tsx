@@ -25,7 +25,7 @@ export function About() {
               className="group flex items-center gap-4 rounded-2xl border border-border bg-surface px-6 py-5 text-body text-foreground transition-colors hover:border-accent/50"
             >
               {Icon ? (
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-subtle text-accent transition-colors">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-subtle text-accent-strong-strong transition-colors">
                   <Icon className="h-5 w-5" aria-hidden />
                 </span>
               ) : null}

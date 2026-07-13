@@ -220,7 +220,7 @@ export function Spotlight({ items }: { items: SpotlightItem[] }) {
                                   onMouseMove={() => setActiveIndex(flatIndex)}
                                   className={`flex min-h-11 w-full touch-manipulation items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left text-body transition-colors ${
                                     isActive
-                                      ? "bg-accent-subtle text-accent"
+                                      ? "bg-accent-subtle text-accent-strong-strong"
                                       : "text-foreground-muted"
                                   }`}
                                 >

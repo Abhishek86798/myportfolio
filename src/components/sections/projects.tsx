@@ -41,7 +41,7 @@ function ProjectCard({ project }: { project: Project }) {
       }`}
     >
       {featured ? (
-        <span className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-accent-subtle px-3 py-1 text-small font-medium text-accent">
+        <span className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-accent-subtle px-3 py-1 text-small font-medium text-accent-strong">
           <Star className="h-3.5 w-3.5" aria-hidden />
           Featured
         </span>

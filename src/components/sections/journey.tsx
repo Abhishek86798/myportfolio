@@ -102,7 +102,7 @@ export function Journey() {
                     {m.title}
                   </span>
                   {m.current ? (
-                    <span className="rounded-full bg-accent-subtle px-2 py-0.5 text-small font-medium text-accent">
+                    <span className="rounded-full bg-accent-subtle px-2 py-0.5 text-small font-medium text-accent-strong">
                       Now
                     </span>
                   ) : null}
