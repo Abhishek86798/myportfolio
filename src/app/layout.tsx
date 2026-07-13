@@ -2,6 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AudienceModeProvider } from "@/components/audience-mode/context";
 import { ThemeProvider, themeInitScript } from "@/components/theme/theme-provider";
+import { TerminalProvider } from "@/components/terminal/context";
+import { Terminal } from "@/components/terminal/terminal";
+import { TerminalTriggers } from "@/components/terminal/terminal-triggers";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -85,7 +88,13 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
-          <AudienceModeProvider>{children}</AudienceModeProvider>
+          <AudienceModeProvider>
+            <TerminalProvider>
+              {children}
+              <Terminal />
+              <TerminalTriggers />
+            </TerminalProvider>
+          </AudienceModeProvider>
         </ThemeProvider>
       </body>
     </html>
