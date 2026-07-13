@@ -14,7 +14,7 @@ const SECTIONS: SpotlightItem[] = [
 ];
 
 const ACTIONS: SpotlightItem[] = [
-  { id: "a-resume", label: "Download résumé", group: "Actions", href: siteConfig.links.resume, external: true },
+  { id: "a-resume", label: "Download resume", group: "Actions", href: siteConfig.links.resume, external: true, keywords: "cv résumé curriculum vitae" },
   { id: "a-github", label: "GitHub profile", group: "Actions", href: siteConfig.links.github, external: true },
   { id: "a-linkedin", label: "LinkedIn profile", group: "Actions", href: siteConfig.links.linkedin, external: true },
   { id: "a-email", label: "Email me", group: "Actions", href: siteConfig.links.email, external: true },

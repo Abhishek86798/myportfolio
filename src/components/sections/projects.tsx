@@ -1,9 +1,12 @@
+"use client";
+
 import { ArrowUpRight, Star } from "lucide-react";
 import { GithubIcon } from "@/components/ui/brand-icons";
 import { Section, SectionHeading } from "@/components/ui/section";
 import { Reveal } from "@/components/ui/reveal";
 import { MetricRow } from "@/components/ui/metric-row";
 import { ArchitectureExplorer } from "@/components/projects/architecture-explorer";
+import { useAudienceMode } from "@/components/audience-mode/context";
 import { projects, type Project } from "@/data/projects";
 
 export function Projects() {
@@ -23,7 +26,12 @@ export function Projects() {
 }
 
 function ProjectCard({ project }: { project: Project }) {
+  const { mode } = useAudienceMode();
+  const isEngineer = mode === "engineer";
   const featured = project.featured;
+  const hasExplorer =
+    !!project.engineer.architectureNodes &&
+    project.engineer.architectureNodes.length > 0;
   return (
     <article
       className={`group relative rounded-2xl border bg-surface transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/10 active:translate-y-0 ${
@@ -74,14 +82,21 @@ function ProjectCard({ project }: { project: Project }) {
         {project.recruiter.impact}
       </p>
 
-      {project.engineer.architectureNodes &&
-      project.engineer.architectureNodes.length > 0 ? (
+      {/* Engineer mode adds the implementation summary (§4b) */}
+      {isEngineer ? (
+        <p className="mt-3 max-w-2xl text-small text-foreground-muted">
+          {project.engineer.summary}
+        </p>
+      ) : null}
+
+      {/* Explorer is the Engineer-mode "taste" on the homepage (§4a two-layer) */}
+      {isEngineer && hasExplorer ? (
         <div className="mt-8">
           <p className="mb-4 flex items-center gap-2 text-small font-medium uppercase tracking-widest text-foreground-subtle">
             <span className="h-px w-6 bg-accent" aria-hidden />
             Architecture — click a stage
           </p>
-          <ArchitectureExplorer nodes={project.engineer.architectureNodes} />
+          <ArchitectureExplorer nodes={project.engineer.architectureNodes!} />
         </div>
       ) : null}
 

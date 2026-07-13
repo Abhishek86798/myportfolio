@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 
 export type AudienceMode = "recruiter" | "engineer";
 
@@ -12,14 +18,15 @@ const AudienceModeContext = createContext<{
   toggle: () => void;
 } | null>(null);
 
-function readStoredMode(): AudienceMode {
-  if (typeof window === "undefined") return "recruiter";
-  const stored = window.localStorage.getItem(STORAGE_KEY);
-  return stored === "engineer" ? "engineer" : "recruiter";
-}
-
 export function AudienceModeProvider({ children }: { children: ReactNode }) {
-  const [mode, setMode] = useState<AudienceMode>(readStoredMode);
+  // Always start "recruiter" so server and first client render match (no
+  // hydration mismatch). Sync from localStorage after mount.
+  const [mode, setMode] = useState<AudienceMode>("recruiter");
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    if (stored === "engineer") setMode("engineer");
+  }, []);
 
   const updateMode = (next: AudienceMode) => {
     setMode(next);

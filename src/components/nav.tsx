@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { siteConfig } from "@/data/site.config";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { AudienceModeToggle } from "@/components/audience-mode/toggle";
 import { Spotlight } from "@/components/spotlight/spotlight";
 import type { SpotlightItem } from "@/lib/spotlight";
 import { cn } from "@/lib/utils";
@@ -145,6 +146,8 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
             ))}
           </ul>
 
+          {/* Audience Mode — desktop only; mobile lives in the menu panel */}
+          <AudienceModeToggle className="mr-1 hidden sm:inline-flex" />
           <Spotlight items={spotlightIndex} />
           <ThemeToggle />
 
@@ -190,7 +193,16 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
                     <X className="h-5 w-5" aria-hidden />
                   </button>
                 </div>
-                <ul className="mt-8 flex flex-col gap-1">
+
+                {/* Audience Mode — lives in the menu on mobile (§4b) */}
+                <div className="mt-6">
+                  <p className="mb-2 text-small font-medium uppercase tracking-widest text-foreground-subtle">
+                    Viewing as
+                  </p>
+                  <AudienceModeToggle className="w-full [&>button]:flex-1 [&>button]:justify-center" />
+                </div>
+
+                <ul className="mt-6 flex flex-col gap-1">
                   {NAV_LINKS.map((link) => (
                     <li key={link.href}>
                       <a
