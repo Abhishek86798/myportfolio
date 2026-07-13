@@ -2,15 +2,33 @@
 
 import { useId, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { ChevronRight } from "lucide-react";
+import {
+  ArrowRight,
+  DoorOpen,
+  ShieldCheck,
+  Activity,
+  Box,
+  Server,
+  type LucideIcon,
+} from "lucide-react";
 import type { ArchitectureNode } from "@/data/projects";
 
+const ICONS: Record<ArchitectureNode["icon"], LucideIcon> = {
+  door: DoorOpen,
+  shield: ShieldCheck,
+  activity: Activity,
+  box: Box,
+  server: Server,
+};
+
 /**
- * Interactive architecture pipeline (§4a). Renders the project's stages as a
- * WAI-ARIA tablist — each node is a tab, the decision panel is its tabpanel.
- * Click or keyboard (arrows / Home / End) selects a stage; the panel shows the
- * why / tradeoff / rejected behind it. Calm by design: emerald marks the active
- * node, a connector fills up to it, content crossfades. Reduced-motion → static.
+ * Interactive architecture diagram (§4a) — the page's signature feature.
+ * Renders the project's stages as node cards (icon + name + role) joined by
+ * flow connectors, using the WAI-ARIA tablist pattern: each card is a tab, the
+ * decision panel is its tabpanel. Click or keyboard (arrows / Home / End)
+ * selects a stage; the panel shows the why / tradeoff / rejected behind it.
+ * Calm by design: emerald marks the active card, connectors fill up to it,
+ * content crossfades. Reduced-motion → static.
  */
 export function ArchitectureExplorer({ nodes }: { nodes: ArchitectureNode[] }) {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -58,17 +76,19 @@ export function ArchitectureExplorer({ nodes }: { nodes: ArchitectureNode[] }) {
         decision.
       </p>
 
-      {/* Node rail — horizontal on desktop, vertical on mobile */}
+      {/* Node rail — cards joined by flow connectors. Horizontal on desktop,
+          vertical (with a left spine) on mobile. */}
       <div
         role="tablist"
         aria-label="Architecture stages"
         aria-orientation="horizontal"
         onKeyDown={onKeyDown}
-        className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-0"
+        className="flex flex-col gap-2 sm:flex-row sm:items-stretch sm:gap-0"
       >
         {nodes.map((node, i) => {
           const isActive = i === activeIndex;
-          const isPast = i <= activeIndex;
+          const Icon = ICONS[node.icon];
+          const connectorLit = i < activeIndex;
           return (
             <div key={node.id} className="flex items-center sm:contents">
               <button
@@ -81,26 +101,33 @@ export function ArchitectureExplorer({ nodes }: { nodes: ArchitectureNode[] }) {
                 aria-controls={`${baseId}-panel`}
                 tabIndex={isActive ? 0 : -1}
                 onClick={() => setActiveIndex(i)}
-                className={`inline-flex min-h-11 touch-manipulation items-center gap-2 rounded-lg border px-4 py-2 font-mono text-small transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
+                className={`group flex w-full min-h-11 flex-1 touch-manipulation flex-col gap-1 rounded-xl border p-3 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:min-w-0 ${
                   isActive
-                    ? "border-accent bg-accent-subtle text-accent-strong"
-                    : "border-border text-foreground-muted hover:border-accent/50 hover:text-foreground"
+                    ? "-translate-y-0.5 border-accent bg-accent-subtle shadow-sm shadow-accent/10"
+                    : "border-border hover:-translate-y-0.5 hover:border-accent/50"
                 }`}
               >
-                <span
-                  className={`h-1.5 w-1.5 shrink-0 rounded-full ${
-                    isActive ? "bg-accent" : "bg-border"
-                  }`}
-                  aria-hidden
-                />
-                {node.label}
+                <span className="flex items-center gap-2">
+                  <Icon
+                    className={`h-4 w-4 shrink-0 ${isActive ? "text-accent-strong" : "text-foreground-subtle"}`}
+                    aria-hidden
+                  />
+                  <span
+                    className={`font-mono text-small font-medium ${isActive ? "text-accent-strong" : "text-foreground"}`}
+                  >
+                    {node.label}
+                  </span>
+                </span>
+                <span className="truncate text-[0.7rem] text-foreground-subtle">
+                  {node.role}
+                </span>
               </button>
 
-              {/* Connector — fills emerald up to the active node */}
+              {/* Flow connector — fills emerald up to the active node */}
               {i < nodes.length - 1 ? (
-                <ChevronRight
-                  className={`mx-1 hidden h-4 w-4 shrink-0 transition-colors sm:block ${
-                    isPast && i < activeIndex ? "text-accent" : "text-border"
+                <ArrowRight
+                  className={`mx-1 hidden h-4 w-4 shrink-0 self-center transition-colors sm:block ${
+                    connectorLit ? "text-accent" : "text-border"
                   }`}
                   aria-hidden
                 />
@@ -125,7 +152,7 @@ export function ArchitectureExplorer({ nodes }: { nodes: ArchitectureNode[] }) {
           transition={{ duration: 0.2, ease: "easeOut" }}
         >
           <div className="flex items-baseline justify-between gap-4">
-            <h4 className="font-mono text-body-lg font-semibold text-accent">
+            <h4 className="font-mono text-body-lg font-semibold text-accent-strong">
               {active.label}
             </h4>
             <span className="shrink-0 font-mono text-small tabular-nums text-foreground-subtle">

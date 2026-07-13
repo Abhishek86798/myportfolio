@@ -10,6 +10,10 @@ export type Metric = {
 export type ArchitectureNode = {
   id: string;
   label: string;
+  /** Lucide icon name for the node card. */
+  icon: "door" | "shield" | "activity" | "box" | "server";
+  /** One-line role shown on the node card. */
+  role: string;
   /** Why this piece exists. */
   why: string;
   /** What it costs / what was given up. */
@@ -63,6 +67,8 @@ export const projects: Project[] = [
         {
           id: "gateway",
           label: "Gateway",
+          icon: "door",
+          role: "single entry point",
           why: "A single entry point every tool call must pass through, so policy is enforced in one place instead of scattered across each MCP server.",
           tradeoff: "Adds one network hop and a central component that must stay highly available — the gateway becomes a chokepoint if it goes down.",
           rejected: "Per-server middleware (enforce inside each tool). Rejected because policy would drift across servers and every new server would re-implement security from scratch.",
@@ -70,6 +76,8 @@ export const projects: Project[] = [
         {
           id: "verifier",
           label: "Verifier",
+          icon: "shield",
+          role: "manifest inspection",
           why: "Inspects each tool's manifest up front — declared capabilities, permissions, schemas — to reject obviously malicious or malformed tools before any execution.",
           tradeoff: "Static inspection can't catch everything; a tool can declare innocent intent and misbehave at runtime, so the Verifier alone is insufficient.",
           rejected: "Trusting the manifest as-is (declaration = truth). Rejected because a manifest is a claim, not a guarantee — which is exactly what the Profiler exists to check.",
@@ -77,6 +85,8 @@ export const projects: Project[] = [
         {
           id: "profiler",
           label: "Profiler",
+          icon: "activity",
+          role: "syscall profiling",
           why: "Runs the tool under seccomp/strace in a throwaway sandbox to observe the syscalls it actually makes, then compares observed vs. declared capability.",
           tradeoff: "Profiling costs real execution time and produces noisy traces — 900+ syscall lines per tool — that need aggressive filtering to be useful.",
           rejected: "Full static analysis of tool code. Rejected because many MCP tools are opaque binaries or remote services with no source to analyze.",
@@ -84,6 +94,8 @@ export const projects: Project[] = [
         {
           id: "sandbox",
           label: "Sandbox",
+          icon: "box",
+          role: "least-privilege exec",
           why: "Executes the tool with least-privilege — a locked-down Docker profile granting only the capabilities the Verifier approved — so a compromised tool can't reach the host.",
           tradeoff: "Tight sandboxing can break legitimate tools that need broader access, requiring per-tool profile tuning rather than one universal policy.",
           rejected: "Running tools in the host process for speed. Rejected outright — a single malicious tool would have full host access, defeating the entire point.",
@@ -91,6 +103,8 @@ export const projects: Project[] = [
         {
           id: "tool",
           label: "Tool",
+          icon: "server",
+          role: "MCP tool server",
           why: "The actual MCP tool server, now reached only after a verdict is issued — the proxy streams allow/deny decisions to a dashboard so drift is visible in real time.",
           tradeoff: "The verdict pipeline adds latency before the tool responds; acceptable for a security boundary, but not free.",
           rejected: "Post-hoc logging (let it run, audit later). Rejected because prohibited processing can't be undone after the fact — the check has to happen before execution.",
