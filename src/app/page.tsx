@@ -11,6 +11,7 @@ import { Footer } from "@/components/sections/footer";
 import { getGitHubStats } from "@/lib/data/github";
 import { getCodingStats } from "@/lib/data/codolio";
 import { getAllPosts } from "@/lib/blog";
+import { buildSpotlightIndex } from "@/lib/spotlight-index";
 
 // Rebuild the page's live data at most hourly (ISR) — §0.
 export const revalidate = 3600;
@@ -21,6 +22,7 @@ export default async function Home() {
     getCodingStats(),
     getAllPosts(),
   ]);
+  const spotlightIndex = buildSpotlightIndex(posts);
 
   return (
     <>
@@ -30,7 +32,7 @@ export default async function Home() {
       >
         Skip to content
       </a>
-      <Nav />
+      <Nav spotlightIndex={spotlightIndex} />
       <main id="main" tabIndex={-1} className="flex flex-1 flex-col outline-none">
         <Hero />
         <About />

@@ -6,6 +6,8 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { siteConfig } from "@/data/site.config";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { Spotlight } from "@/components/spotlight/spotlight";
+import type { SpotlightItem } from "@/lib/spotlight";
 import { cn } from "@/lib/utils";
 
 // `desktop: false` keeps a section out of the (space-constrained) desktop bar
@@ -48,7 +50,7 @@ function useActiveSection(ids: string[]) {
   return active;
 }
 
-export function Nav() {
+export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
   const active = useActiveSection(NAV_LINKS.map((l) => l.id));
   const [menuOpen, setMenuOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -143,6 +145,7 @@ export function Nav() {
             ))}
           </ul>
 
+          <Spotlight items={spotlightIndex} />
           <ThemeToggle />
 
           {/* Mobile menu trigger */}
