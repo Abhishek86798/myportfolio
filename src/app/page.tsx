@@ -8,7 +8,7 @@ import { Projects } from "@/components/sections/projects";
 import { Dashboard } from "@/components/sections/dashboard";
 import { Blog } from "@/components/sections/blog";
 import { Footer } from "@/components/sections/footer";
-import { getGitHubStats } from "@/lib/data/github";
+import { getGitHubStats, mergeUnifiedContributions, type GitHubStats } from "@/lib/data/github";
 import { getCodingStats } from "@/lib/data/codolio";
 import { getAllPosts } from "@/lib/blog";
 import { buildSpotlightIndex } from "@/lib/spotlight-index";
@@ -20,7 +20,7 @@ import { sanityFetch } from "@/sanity/client";
 import { journeyQuery, experienceQuery, skillsQuery, projectsQuery, siteSettingsQuery } from "@/sanity/queries";
 
 export default async function Home() {
-  const [stats, coding, posts, journeyData, experienceData, skillsData, projectsData, settingsData] = await Promise.all([
+  const [rawStats, coding, posts, journeyData, experienceData, skillsData, projectsData, settingsData] = await Promise.all([
     getGitHubStats(),
     getCodingStats(),
     getAllPosts(),
@@ -30,6 +30,21 @@ export default async function Home() {
     sanityFetch({ query: projectsQuery, tags: ["project"] }),
     sanityFetch({ query: siteSettingsQuery, tags: ["siteSettings"] }),
   ]);
+
+  // Compute unified contributions (GitHub commits ∪ Codolio DSA submissions)
+  const unified = mergeUnifiedContributions(
+    rawStats.contributions,
+    coding.dailySubmissions
+  );
+
+  const stats: GitHubStats = {
+    ...rawStats,
+    contributions: unified.contributions,
+    activeDays: unified.activeDays,
+    longestStreak: unified.longestStreak,
+    weeklySparkline: unified.weeklySparkline,
+  };
+
   const spotlightIndex = buildSpotlightIndex(posts);
 
   return (

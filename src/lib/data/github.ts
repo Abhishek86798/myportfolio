@@ -24,6 +24,8 @@ export type ContributionDay = {
   count: number;
   /** 0-4 intensity level, GitHub's own bucketing. */
   level: 0 | 1 | 2 | 3 | 4;
+  githubCount?: number;
+  codolioCount?: number;
 };
 
 export type ContributionData = {
@@ -339,7 +341,7 @@ async function fetchRecentCommits(repos: RawRepo[]): Promise<RecentCommit[]> {
   }
 }
 
-function deriveCalendarMetrics(contributions: ContributionData) {
+export function deriveCalendarMetrics(contributions: ContributionData) {
   const days = contributions.weeks.flat();
   const total = days.reduce((sum, d) => sum + (d.count || 0), 0);
   const activeDays = days.filter((d) => d.count > 0).length;
@@ -364,6 +366,54 @@ function deriveCalendarMetrics(contributions: ContributionData) {
     activeDays,
     longestStreak,
     weeklySparkline,
+  };
+}
+
+export function mergeUnifiedContributions(
+  githubContribs: ContributionData,
+  codolioSubmissions: Record<string, number> = {}
+): {
+  contributions: ContributionData;
+  activeDays: number;
+  longestStreak: number;
+  weeklySparkline: number[];
+  total: number;
+} {
+  const weeks: ContributionDay[][] = githubContribs.weeks.map((week) =>
+    week.map((day) => {
+      const ghCount = day.githubCount ?? day.count ?? 0;
+      const codCount = codolioSubmissions[day.date] || 0;
+      const count = ghCount + codCount;
+
+      let level: ContributionDay["level"] = 0;
+      if (count >= 10) level = 4;
+      else if (count >= 6) level = 3;
+      else if (count >= 3) level = 2;
+      else if (count >= 1) level = 1;
+
+      return {
+        date: day.date,
+        count,
+        level,
+        githubCount: ghCount,
+        codolioCount: codCount,
+      };
+    })
+  );
+
+  const unifiedContribs: ContributionData = {
+    total: weeks.flat().reduce((sum, d) => sum + d.count, 0),
+    weeks,
+  };
+
+  const metrics = deriveCalendarMetrics(unifiedContribs);
+
+  return {
+    contributions: unifiedContribs,
+    activeDays: metrics.activeDays,
+    longestStreak: metrics.longestStreak,
+    weeklySparkline: metrics.weeklySparkline,
+    total: metrics.total,
   };
 }
 

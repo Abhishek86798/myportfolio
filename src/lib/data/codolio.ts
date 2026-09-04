@@ -27,6 +27,7 @@ export type CodingStats = {
   capturedAt: string;
   isLive: boolean;
   profileUrl: string;
+  dailySubmissions: Record<string, number>;
 };
 
 // Verified baseline numbers grounded in dated repository snapshot (§5)
@@ -42,6 +43,7 @@ const FALLBACK: CodingStats = {
   capturedAt: statsJson.capturedAt,
   isLive: false,
   profileUrl: statsJson.profileUrl || CODOLIO_PROFILE,
+  dailySubmissions: {},
 };
 
 type CodolioResponse = {
@@ -57,6 +59,9 @@ type CodolioResponse = {
           easyQuestionCounts?: number | null;
           mediumQuestionCounts?: number | null;
           hardQuestionCounts?: number | null;
+        } | null;
+        dailyActivityStatsResponse?: {
+          submissionCalendar?: Record<string, number> | null;
         } | null;
       }>;
     };
@@ -80,6 +85,7 @@ export async function getCodingStats(): Promise<CodingStats> {
     let medium = 0;
     let hard = 0;
     let contestRating = FALLBACK.contestRating;
+    const dailySubmissions: Record<string, number> = {};
 
     for (const p of raw) {
       const q = p.totalQuestionStats;
@@ -91,6 +97,22 @@ export async function getCodingStats(): Promise<CodingStats> {
       }
       if (p.platform === "leetcode" && p.userStats?.currentRating) {
         contestRating = p.userStats.currentRating;
+      }
+
+      // Aggregate daily submissions across all platforms (LeetCode, GfG, CodeStudio, CodeChef)
+      const cal = p.dailyActivityStatsResponse?.submissionCalendar;
+      if (cal) {
+        for (const [ts, count] of Object.entries(cal)) {
+          const tsNum = parseInt(ts, 10);
+          if (!isNaN(tsNum) && typeof count === "number" && count > 0) {
+            try {
+              const d = new Date(tsNum * 1000).toISOString().split("T")[0];
+              dailySubmissions[d] = (dailySubmissions[d] || 0) + count;
+            } catch {
+              // ignore invalid date
+            }
+          }
+        }
       }
     }
 
@@ -109,6 +131,7 @@ export async function getCodingStats(): Promise<CodingStats> {
       capturedAt: FALLBACK.capturedAt,
       isLive: true,
       profileUrl: CODOLIO_PROFILE,
+      dailySubmissions,
     };
   } catch {
     return FALLBACK;
