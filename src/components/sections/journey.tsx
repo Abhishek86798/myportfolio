@@ -4,13 +4,10 @@ import { useState } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { Section, SectionHeading } from "@/components/ui/section";
 import { Reveal } from "@/components/ui/reveal";
-import { useAudienceMode } from "@/components/audience-mode/context";
 import { journey as fallbackJourney } from "@/data/journey";
 
 export function Journey({ data = [] }: { data?: any[] }) {
   const [openId, setOpenId] = useState<string | null>(null);
-  const { mode } = useAudienceMode();
-  const isEngineer = mode === "engineer";
 
   const items = data && data.length > 0 ? data : fallbackJourney;
 
@@ -57,8 +54,7 @@ export function Journey({ data = [] }: { data?: any[] }) {
                 <div className="md:col-span-9 relative pl-6 sm:pl-8 border-l border-black/[0.08] dark:border-white/[0.08] flex flex-col gap-7">
                   {milestones.map((m: any, mIdx: number) => {
                     const itemId = m._id || m.id || `${year}-${mIdx}`;
-                    const isOpen =
-                      openId === itemId || (isEngineer && openId !== `closed-${itemId}`);
+                    const isOpen = openId === itemId;
                     const isCurrent = m.current;
 
                     return (

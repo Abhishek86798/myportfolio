@@ -17,10 +17,10 @@ import { buildSpotlightIndex } from "@/lib/spotlight-index";
 export const revalidate = 3600;
 
 import { sanityFetch } from "@/sanity/client";
-import { journeyQuery, experienceQuery, skillsQuery, projectsQuery, siteSettingsQuery } from "@/sanity/queries";
+import { journeyQuery, experienceQuery, skillsQuery, projectsQuery, siteSettingsQuery, aboutQuery } from "@/sanity/queries";
 
 export default async function Home() {
-  const [rawStats, coding, posts, journeyData, experienceData, skillsData, projectsData, settingsData] = await Promise.all([
+  const [rawStats, coding, posts, journeyData, experienceData, skillsData, projectsData, settingsData, aboutData] = await Promise.all([
     getGitHubStats(),
     getCodingStats(),
     getAllPosts(),
@@ -29,6 +29,7 @@ export default async function Home() {
     sanityFetch({ query: skillsQuery, tags: ["skill"] }),
     sanityFetch({ query: projectsQuery, tags: ["project"] }),
     sanityFetch({ query: siteSettingsQuery, tags: ["siteSettings"] }),
+    sanityFetch({ query: aboutQuery, tags: ["about"] }),
   ]);
 
   // Datewise union of GitHub contributions & Codolio DSA submissions
@@ -58,7 +59,7 @@ export default async function Home() {
       <Nav spotlightIndex={spotlightIndex} />
       <main id="main" tabIndex={-1} className="flex flex-1 flex-col outline-none">
         <Hero settings={settingsData as any} stats={stats} />
-        <About />
+        <About data={aboutData as any} />
         <Experience data={experienceData as any} />
         <Projects data={projectsData as any} />
         <Skills data={skillsData as any} />

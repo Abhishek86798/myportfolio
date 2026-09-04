@@ -5,6 +5,18 @@ export const siteSettingsQuery = groq`*[_type == "siteSettings"][0] {
   "resumeUrl": resumeFile.asset->url
 }`
 
+export const aboutQuery = groq`*[_type == "about"][0] {
+  _id,
+  headline,
+  narrative,
+  principles[] {
+    title,
+    tag,
+    description
+  },
+  currentFocus
+}`
+
 export const journeyQuery = groq`*[_type == "journey"] | order(order asc) {
   _id,
   year,

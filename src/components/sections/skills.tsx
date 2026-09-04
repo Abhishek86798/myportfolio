@@ -4,7 +4,6 @@ import { useState } from "react";
 
 import { Section, SectionHeading } from "@/components/ui/section";
 import { Reveal } from "@/components/ui/reveal";
-import { useAudienceMode } from "@/components/audience-mode/context";
 
 import { 
   SiCplusplus, SiPython, SiJavascript, SiTypescript, SiMysql, 
@@ -50,9 +49,6 @@ const iconMap: Record<string, React.ElementType> = {
 };
 
 export function Skills({ data = [] }: { data?: any[] }) {
-  const { mode } = useAudienceMode();
-  const isEngineer = mode === "engineer";
-  
   const categories = data.map((g: any) => g.category);
   // Default to the first category instead of "All" to fit the 2-column layout
   const [activeTab, setActiveTab] = useState(categories[0] || "");
@@ -123,8 +119,8 @@ export function Skills({ data = [] }: { data?: any[] }) {
         </div>
       </div>
 
-      {/* Engineer mode adds detailed category usage (§4b) */}
-      {isEngineer && activeGroup?.usage ? (
+      {/* Category usage details */}
+      {activeGroup?.usage ? (
         <Reveal delay={0.1} className="mt-10">
           <div className="rounded-2xl border border-border bg-surface p-6">
             <h3 className="text-body-lg font-semibold tracking-tight text-foreground">

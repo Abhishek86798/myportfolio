@@ -1,9 +1,6 @@
-"use client";
-
 import { ArrowUpRight } from "lucide-react";
 import { Section, SectionHeading } from "@/components/ui/section";
 import { Reveal } from "@/components/ui/reveal";
-import { useAudienceMode } from "@/components/audience-mode/context";
 
 const FALLBACK_METRICS: Record<string, { value: string; label: string }[]> = {
   HiGigAi: [
@@ -19,8 +16,6 @@ const FALLBACK_METRICS: Record<string, { value: string; label: string }[]> = {
 };
 
 export function Experience({ data = [] }: { data?: any[] }) {
-  const { mode } = useAudienceMode();
-  const isEngineer = mode === "engineer";
 
   // Map Sanity schema fields to component expectations
   const normalizedData = data.map((job: any) => {
@@ -135,8 +130,7 @@ export function Experience({ data = [] }: { data?: any[] }) {
                   ))}
                 </ul>
 
-                {/* Engineer mode deeper implementation notes (§4b) */}
-                {isEngineer && job.engineerHighlights && job.engineerHighlights.length > 0 ? (
+                {job.engineerHighlights && job.engineerHighlights.length > 0 ? (
                   <ul className="mt-3 flex flex-col gap-2 border-l-2 border-border pl-4">
                     {job.engineerHighlights.map((point: string) => (
                       <li key={point} className="text-small text-foreground-muted">

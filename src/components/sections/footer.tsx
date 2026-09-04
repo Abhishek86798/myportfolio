@@ -2,7 +2,6 @@ import { Mail } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/ui/brand-icons";
 import { siteConfig } from "@/data/site.config";
 import { EmailAction } from "@/components/ui/email-action";
-import { TerminalGlyph } from "@/components/terminal/terminal-glyph";
 
 const EXPLORING = ["AI Security", "Agent Systems", "Distributed Systems"];
 
@@ -73,12 +72,16 @@ export function Footer() {
 
         <div className="mt-12 flex items-center justify-between gap-4 font-mono text-xs text-foreground-subtle border-t border-border/40 pt-6">
           <p className="flex items-center gap-2">
-            <span>© {new Date().getFullYear()} {siteConfig.name}. Built with Next.js.</span>
+            <span>© {new Date().getFullYear()} {siteConfig.name}.</span>
             <span>·</span>
             <span className="text-foreground-muted">exit 0</span>
           </p>
-          {/* Discoverable, not advertised (§4d) — no label */}
-          <TerminalGlyph />
+          <a
+            href="#main"
+            className="text-foreground-subtle transition-colors hover:text-accent"
+          >
+            Back to top ↑
+          </a>
         </div>
       </div>
     </footer>
