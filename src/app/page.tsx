@@ -45,7 +45,7 @@ export default async function Home() {
     weeklySparkline: unified.weeklySparkline,
   };
 
-  const spotlightIndex = buildSpotlightIndex(posts);
+  const spotlightIndex = buildSpotlightIndex(posts, (settingsData as any)?.resumeUrl);
 
   return (
     <>

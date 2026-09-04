@@ -69,7 +69,7 @@ export function Hero({
                 View Projects
               </a>
               <a
-                href={siteConfig.links.resume}
+                href={settings?.resumeUrl || siteConfig.links.resume}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex touch-manipulation items-center justify-center rounded-lg border border-border px-5 py-2.5 text-small font-medium text-foreground transition-all hover:border-accent hover:text-accent active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"

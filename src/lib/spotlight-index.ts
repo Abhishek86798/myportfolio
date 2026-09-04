@@ -20,8 +20,22 @@ const ACTIONS: SpotlightItem[] = [
   { id: "a-email", label: "Email me", group: "Actions", href: siteConfig.links.email, external: true },
 ];
 
-/** Builds the full Spotlight index. Blog posts are passed in (server-fetched). */
-export function buildSpotlightIndex(posts: PostMeta[]): SpotlightItem[] {
+/** Builds the full Spotlight index. Blog posts and optional dynamic resume URL are passed in. */
+export function buildSpotlightIndex(posts: PostMeta[], resumeUrl?: string): SpotlightItem[] {
+  const actions: SpotlightItem[] = [
+    {
+      id: "a-resume",
+      label: "Download resume",
+      group: "Actions",
+      href: resumeUrl || siteConfig.links.resume,
+      external: true,
+      keywords: "cv résumé curriculum vitae",
+    },
+    { id: "a-github", label: "GitHub profile", group: "Actions", href: siteConfig.links.github, external: true },
+    { id: "a-linkedin", label: "LinkedIn profile", group: "Actions", href: siteConfig.links.linkedin, external: true },
+    { id: "a-email", label: "Email me", group: "Actions", href: siteConfig.links.email, external: true },
+  ];
+
   const projectItems: SpotlightItem[] = projects.map((p) => ({
     id: `p-${p.slug}`,
     label: p.title,
@@ -38,5 +52,5 @@ export function buildSpotlightIndex(posts: PostMeta[]): SpotlightItem[] {
     keywords: `${p.description} ${p.tags.join(" ")}`,
   }));
 
-  return [...SECTIONS, ...projectItems, ...postItems, ...ACTIONS];
+  return [...SECTIONS, ...projectItems, ...postItems, ...actions];
 }

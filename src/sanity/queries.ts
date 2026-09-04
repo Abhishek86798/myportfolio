@@ -1,7 +1,8 @@
 import { groq } from 'next-sanity'
 
 export const siteSettingsQuery = groq`*[_type == "siteSettings"][0] {
-  currentlyBuilding
+  currentlyBuilding,
+  "resumeUrl": resumeFile.asset->url
 }`
 
 export const journeyQuery = groq`*[_type == "journey"] | order(order asc) {
