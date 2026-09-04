@@ -3,14 +3,19 @@ export const metadata = {
   description: 'Manage your portfolio content',
 }
 
-export default function RootLayout({
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+}
+
+export default function StudioLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body style={{ margin: 0, padding: 0 }}>{children}</body>
-    </html>
+    <div className="fixed inset-0 z-[9999] h-screen w-screen overflow-hidden bg-[#101112]">
+      {children}
+    </div>
   )
 }
