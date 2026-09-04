@@ -21,9 +21,8 @@ export function Hero({
   settings?: any;
   stats?: GitHubStats;
 }) {
-  const badgeText =
-    settings?.currentlyBuilding ||
-    `${siteConfig.status.label} — ${siteConfig.status.project}`;
+  const currentFocus =
+    settings?.currentlyBuilding || siteConfig.status.project;
 
   const lastCommit = stats?.latestCommit || stats?.recentCommits?.[0];
   const totalContributions = stats?.contributions?.total ?? 435;
@@ -40,15 +39,6 @@ export function Hero({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           {/* Left 7 Columns: Core Pitch & Typography */}
           <div className="lg:col-span-7 flex flex-col items-start">
-            {/* Live status badge (§4f) */}
-            <div className="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-border bg-background-subtle px-3 py-1.5 text-small text-foreground-muted">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75 motion-reduce:animate-none" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
-              </span>
-              {badgeText}
-            </div>
-
             <h1 className="text-5xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-6xl md:text-7xl">
               {siteConfig.name}
               <span className="text-accent">.</span>
@@ -103,10 +93,29 @@ export function Hero({
                 </span>
               </div>
 
-              {/* 3 Measured Rows — Generous Whitespace, No Junk */}
+              {/* Measured Telemetry Rows */}
               <div className="divide-y divide-border/50">
-                {/* Row 1: Last commit — message, repo, relative time */}
-                <div className="py-4">
+                {/* Row 1: Current Focus — dynamic from Sanity siteSettings */}
+                <div className="pb-3.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-xs text-foreground-subtle">
+                      Current focus
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 font-mono text-[11px] text-accent">
+                      <span className="relative flex h-1.5 w-1.5">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75 motion-reduce:animate-none" />
+                        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+                      </span>
+                      active
+                    </span>
+                  </div>
+                  <p className="mt-1 font-mono text-small font-medium text-foreground">
+                    {currentFocus}
+                  </p>
+                </div>
+
+                {/* Row 2: Last commit — message, repo, relative time */}
+                <div className="py-3.5">
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-mono text-xs text-foreground-subtle">
                       Last commit
