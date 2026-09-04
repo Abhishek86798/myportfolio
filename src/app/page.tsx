@@ -31,19 +31,7 @@ export default async function Home() {
     sanityFetch({ query: siteSettingsQuery, tags: ["siteSettings"] }),
   ]);
 
-  // Compute unified contributions (GitHub commits ∪ Codolio DSA submissions)
-  const unified = mergeUnifiedContributions(
-    rawStats.contributions,
-    coding.dailySubmissions
-  );
-
-  const stats: GitHubStats = {
-    ...rawStats,
-    contributions: unified.contributions,
-    activeDays: unified.activeDays,
-    longestStreak: unified.longestStreak,
-    weeklySparkline: unified.weeklySparkline,
-  };
+  const stats: GitHubStats = rawStats;
 
   const spotlightIndex = buildSpotlightIndex(posts);
 

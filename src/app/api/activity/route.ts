@@ -1,34 +1,21 @@
 import { NextResponse } from "next/server";
-import { getGitHubStats, mergeUnifiedContributions } from "@/lib/data/github";
-import { getCodingStats } from "@/lib/data/codolio";
+import { getGitHubStats } from "@/lib/data/github";
 
 export const revalidate = 60; // 1-minute caching for near-live freshness
 
 export async function GET() {
   try {
-    const [ghStats, codingStats] = await Promise.all([
-      getGitHubStats(),
-      getCodingStats(),
-    ]);
-
-    const unified = mergeUnifiedContributions(
-      ghStats.contributions,
-      codingStats.dailySubmissions
-    );
+    const ghStats = await getGitHubStats();
 
     return NextResponse.json({
       success: true,
-      contributions: unified.contributions,
-      activeDays: unified.activeDays,
-      longestStreak: unified.longestStreak,
-      weeklySparkline: unified.weeklySparkline,
-      total: unified.total,
+      contributions: ghStats.contributions,
+      activeDays: ghStats.activeDays,
+      longestStreak: ghStats.longestStreak,
+      weeklySparkline: ghStats.weeklySparkline,
+      total: ghStats.contributions.total,
+      recentCommits: ghStats.recentCommits,
       updatedAt: "just now",
-      breakdown: {
-        githubActiveDays: ghStats.activeDays,
-        codolioActiveDays: codingStats.activeDays,
-        dsaTotal: codingStats.total,
-      },
     }, {
       headers: {
         "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120",

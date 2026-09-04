@@ -130,35 +130,46 @@ async function scrapePublicContributions(): Promise<ContributionData | null> {
       tipMap.set(id, count);
     }
 
-    const days: ContributionDay[] = [];
-    const tdRe = /<td[^>]*class="[^"]*ContributionCalendar-day[^"]*"[^>]*>/g;
-    let td: RegExpExecArray | null;
-    while ((td = tdRe.exec(html)) !== null) {
-      const str = td[0];
-      const dateM = str.match(/data-date="([^"]+)"/);
-      const idM = str.match(/id="([^"]+)"/);
-      const levelM = str.match(/data-level="(\d+)"/);
-      if (dateM && levelM) {
-        const date = dateM[1];
-        const level = Math.min(4, Math.max(0, parseInt(levelM[1], 10))) as ContributionDay["level"];
-        const id = idM ? idM[1] : "";
-        const count = tipMap.get(id) ?? (level > 0 ? level * 2 : 0);
-        days.push({ date, level, count });
+    const trMatches = html.match(/<tbody[^>]*>([\s\S]*?)<\/tbody>/);
+    if (!trMatches) return null;
+    const tbody = trMatches[1];
+    const trs = tbody.match(/<tr[^>]*>([\s\S]*?)<\/tr>/g) || [];
+
+    const rows: ContributionDay[][] = trs.map((tr) => {
+      const rowDays: ContributionDay[] = [];
+      const tdRe = /<td[^>]*class="[^"]*ContributionCalendar-day[^"]*"[^>]*>/g;
+      let td: RegExpExecArray | null;
+      while ((td = tdRe.exec(tr)) !== null) {
+        const str = td[0];
+        const dateM = str.match(/data-date="([^"]+)"/);
+        const idM = str.match(/id="([^"]+)"/);
+        const levelM = str.match(/data-level="(\d+)"/);
+        if (dateM && levelM) {
+          const date = dateM[1];
+          const level = Math.min(4, Math.max(0, parseInt(levelM[1], 10))) as ContributionDay["level"];
+          const id = idM ? idM[1] : "";
+          const count = tipMap.get(id) ?? (level > 0 ? level * 2 : 0);
+          rowDays.push({ date, level, count });
+        }
       }
-    }
+      return rowDays;
+    });
 
-    if (days.length === 0) return null;
+    if (rows.length === 0) return null;
 
+    const maxWeeks = Math.max(...rows.map((r) => r.length));
     const weeks: ContributionDay[][] = [];
-    let currentWeek: ContributionDay[] = [];
-    for (const d of days) {
-      currentWeek.push(d);
-      if (currentWeek.length === 7) {
-        weeks.push(currentWeek);
-        currentWeek = [];
+    for (let w = 0; w < maxWeeks; w++) {
+      const week: ContributionDay[] = [];
+      for (let r = 0; r < rows.length; r++) {
+        if (rows[r][w]) {
+          week.push(rows[r][w]);
+        }
+      }
+      if (week.length > 0) {
+        weeks.push(week);
       }
     }
-    if (currentWeek.length > 0) weeks.push(currentWeek);
 
     return { total, weeks };
   } catch {
@@ -284,61 +295,151 @@ type RawCommit = {
   commit: { message: string; author: { date: string } };
 };
 
+function unescapeXml(str: string): string {
+  return str
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, "&");
+}
+
+async function fetchAtomCommits(): Promise<RecentCommit[]> {
+  const notes = annotations as Record<string, string>;
+  try {
+    const res = await fetch(`https://github.com/${USERNAME}.atom`, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        Accept: "application/atom+xml, text/xml",
+      },
+      next: { revalidate: REVALIDATE_SECONDS },
+    });
+    if (!res.ok) return [];
+
+    const xml = await res.text();
+    const entries = xml.match(/<entry>([\s\S]*?)<\/entry>/g) || [];
+    const commits: RecentCommit[] = [];
+    const seen = new Set<string>();
+
+    for (const entry of entries) {
+      const rawContent = unescapeXml(entry);
+      const updatedM =
+        entry.match(/<published>([^<]+)<\/published>/) ||
+        entry.match(/<updated>([^<]+)<\/updated>/);
+      let date = new Date().toISOString();
+      if (updatedM) {
+        const cleanDateStr = updatedM[1].trim();
+        const parsedDate = new Date(cleanDateStr);
+        if (!isNaN(parsedDate.getTime())) {
+          date = parsedDate.toISOString();
+        }
+      }
+
+      const commitBlockRe =
+        /<code>\s*<a[^>]*href="\/Abhishek86798\/([^/]+)\/commit\/([a-f0-9]+)"[^>]*>([a-f0-9]+)<\/a>\s*<\/code>[\s\S]*?<blockquote>([\s\S]*?)<\/blockquote>/g;
+      let match: RegExpExecArray | null;
+      while ((match = commitBlockRe.exec(rawContent)) !== null) {
+        const repo = match[1];
+        const fullSha = match[2];
+        const sha = match[3];
+        const message = match[4].replace(/<[^>]+>/g, "").trim();
+
+        if (!seen.has(sha)) {
+          seen.add(sha);
+          commits.push({
+            sha,
+            message,
+            repo,
+            url: `https://github.com/${USERNAME}/${repo}/commit/${fullSha}`,
+            date,
+            note: notes[sha] || notes[fullSha],
+          });
+        }
+      }
+    }
+
+    return commits;
+  } catch {
+    return [];
+  }
+}
+
 async function fetchRecentCommits(repos: RawRepo[]): Promise<RecentCommit[]> {
   const notes = annotations as Record<string, string>;
   const curated = (fallbackData.recentCommits || []) as RecentCommit[];
 
-  if (repos.length === 0) {
+  let live: RecentCommit[] = [];
+
+  // 1. Try REST API per repo if repos were successfully fetched
+  if (repos.length > 0) {
+    const recentRepos = repos
+      .slice()
+      .sort((a, b) => +new Date(b.updated_at) - +new Date(a.updated_at))
+      .slice(0, 6);
+
+    try {
+      const perRepo = await Promise.all(
+        recentRepos.map(async (r): Promise<RecentCommit | null> => {
+          const list = await restFetch<RawCommit[]>(
+            `/repos/${USERNAME}/${r.name}/commits?author=${USERNAME}&per_page=1`
+          );
+          const c = list?.[0];
+          if (!c) return null;
+          const shaShort = c.sha.slice(0, 7);
+          return {
+            sha: shaShort,
+            message: c.commit.message.split("\n")[0],
+            repo: r.name,
+            url: c.html_url,
+            date: c.commit.author.date,
+            note: notes[shaShort] || notes[c.sha],
+          };
+        })
+      );
+      live = perRepo.filter((c): c is RecentCommit => c !== null);
+    } catch {
+      // fallback below
+    }
+  }
+
+  // 2. If REST API returned no commits, try public Atom timeline feed
+  if (live.length === 0) {
+    try {
+      const atomCommits = await fetchAtomCommits();
+      if (atomCommits.length > 0) {
+        live = atomCommits;
+      }
+    } catch {
+      // fallback below
+    }
+  }
+
+  // 3. Prioritize live GitHub commits first; fill missing spots or fallback with curated
+  if (live.length === 0) {
     return curated.slice(0, 4);
   }
 
-  const recentRepos = repos
-    .slice()
-    .sort((a, b) => +new Date(b.updated_at) - +new Date(a.updated_at))
-    .slice(0, 6);
+  const seen = new Set<string>();
+  const combined: RecentCommit[] = [];
 
-  try {
-    const perRepo = await Promise.all(
-      recentRepos.map(async (r): Promise<RecentCommit | null> => {
-        const list = await restFetch<RawCommit[]>(
-          `/repos/${USERNAME}/${r.name}/commits?author=${USERNAME}&per_page=1`
-        );
-        const c = list?.[0];
-        if (!c) return null;
-        const shaShort = c.sha.slice(0, 7);
-        return {
-          sha: shaShort,
-          message: c.commit.message.split("\n")[0],
-          repo: r.name,
-          url: c.html_url,
-          date: c.commit.author.date,
-          note: notes[shaShort] || notes[c.sha],
-        };
-      })
-    );
-
-    const live = perRepo.filter((c): c is RecentCommit => c !== null);
-    const seen = new Set<string>();
-    const combined: RecentCommit[] = [];
-
-    // Prioritize high-signal technical commits that showcase how Abhishek thinks
-    for (const c of curated) {
+  // Live commits from GitHub come first
+  for (const c of live) {
+    if (!seen.has(c.sha) && !seen.has(c.message) && combined.length < 4) {
       combined.push(c);
       seen.add(c.sha);
       seen.add(c.message);
     }
-
-    for (const c of live) {
-      if (!seen.has(c.sha) && !seen.has(c.message) && combined.length < 4) {
-        combined.push(c);
-        seen.add(c.sha);
-      }
-    }
-
-    return combined.slice(0, 4);
-  } catch {
-    return curated.slice(0, 4);
   }
+
+  // If fewer than 4 live commits, supplement with curated fallback
+  for (const c of curated) {
+    if (!seen.has(c.sha) && !seen.has(c.message) && combined.length < 4) {
+      combined.push(c);
+      seen.add(c.sha);
+      seen.add(c.message);
+    }
+  }
+
+  return combined.slice(0, 4);
 }
 
 export function deriveCalendarMetrics(contributions: ContributionData) {

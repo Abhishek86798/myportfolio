@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { RefreshCw } from "lucide-react";
-import type { ContributionData } from "@/lib/data/github";
+import type { ContributionData, ContributionDay } from "@/lib/data/github";
 
 // Emerald intensity ramp, level 0-4. Level 0 is an empty cell.
 const LEVEL_CLASS = [
@@ -14,6 +14,47 @@ const LEVEL_CLASS = [
 ];
 
 const DAY_LABELS = ["", "Mon", "", "Wed", "", "Fri", ""];
+
+type MonthGroup = {
+  key: string;
+  label: string;
+  year: number;
+  weeks: ContributionDay[][];
+};
+
+const MONTH_NAMES = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+];
+
+function groupWeeksByMonth(weeks: ContributionDay[][]): MonthGroup[] {
+  const groups: MonthGroup[] = [];
+
+  for (const week of weeks) {
+    if (week.length === 0) continue;
+    // Use the middle day (Wednesday, index 3 or closest) to represent the week's month
+    const refDay = week[Math.min(3, week.length - 1)];
+    const parts = refDay.date.split("-");
+    const year = parseInt(parts[0], 10);
+    const monthIndex = parseInt(parts[1], 10) - 1;
+    const key = `${year}-${String(monthIndex + 1).padStart(2, "0")}`;
+    const label = MONTH_NAMES[monthIndex];
+
+    const lastGroup = groups[groups.length - 1];
+    if (!lastGroup || lastGroup.key !== key) {
+      groups.push({
+        key,
+        label,
+        year,
+        weeks: [week],
+      });
+    } else {
+      lastGroup.weeks.push(week);
+    }
+  }
+
+  return groups;
+}
 
 export function Heatmap({
   data,
@@ -42,13 +83,13 @@ export function Heatmap({
         }
       }
     } catch {
-      // keep fallback
+      // keep current data on failure
     } finally {
       setIsSyncing(false);
     }
   };
 
-  // Derive all metrics strictly from the active calendar array
+  // Derive metrics strictly from the active calendar array
   const { activeDays, longestStreak, total } = useMemo(() => {
     const days = calendar.weeks.flat();
     const active = days.filter((d) => d.count > 0).length;
@@ -66,29 +107,9 @@ export function Heatmap({
     return { activeDays: active, longestStreak: longest, total: tot };
   }, [calendar]);
 
-  // Compute month positions along the 52-week horizontal columns
-  const monthMap = useMemo(() => {
-    const map = new Map<number, string>();
-    let lastMonth = -1;
-    calendar.weeks.forEach((week, wi) => {
-      const firstDay = week[0];
-      if (firstDay && firstDay.date) {
-        try {
-          const parts = firstDay.date.split("-");
-          const m = parseInt(parts[1], 10) - 1;
-          if (m !== lastMonth) {
-            // Pick short month name: Jan, Feb, Mar...
-            const d = new Date(Date.UTC(parseInt(parts[0], 10), m, parseInt(parts[2], 10)));
-            const label = d.toLocaleString("en-US", { month: "short", timeZone: "UTC" });
-            map.set(wi, label);
-            lastMonth = m;
-          }
-        } catch {
-          // ignore date parse issues
-        }
-      }
-    });
-    return map;
+  // Group the weekly columns by month to cleanly separate dots month-by-month
+  const monthGroups = useMemo(() => {
+    return groupWeeksByMonth(calendar.weeks);
   }, [calendar.weeks]);
 
   return (
@@ -102,9 +123,6 @@ export function Heatmap({
           <span className="text-small text-foreground-muted">
             · updated {timeLabel}
           </span>
-          <span className="rounded bg-accent/10 px-2 py-0.5 font-mono text-[10px] font-medium text-accent border border-accent/20">
-            GitHub ∪ Codolio
-          </span>
         </div>
 
         <div className="flex items-center gap-3">
@@ -115,7 +133,7 @@ export function Heatmap({
             type="button"
             onClick={syncLive}
             disabled={isSyncing}
-            title="Sync live activity from GitHub & Codolio"
+            title="Sync live activity from GitHub"
             className="group inline-flex items-center gap-1.5 rounded-full border border-border bg-background-subtle/80 px-2.5 py-1 font-mono text-[11px] text-foreground-muted transition-all hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent disabled:opacity-50 cursor-pointer"
           >
             <RefreshCw
@@ -128,85 +146,67 @@ export function Heatmap({
         </div>
       </div>
 
-      {/* Horizontally scrollable 52-week calendar with Month & Day axes */}
+      {/* Horizontally scrollable calendar with Month-Separated dots */}
       <div className="mt-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-border">
-        <div className="min-w-[720px] w-full flex flex-col">
-          {/* Month Axis Header Row */}
-          <div className="flex items-center mb-1.5 pl-7 sm:pl-8">
-            <div className="grid grid-flow-col auto-cols-fr gap-1 sm:gap-1.5 w-full font-mono text-[10px] text-foreground-subtle select-none">
-              {calendar.weeks.map((_, wi) => {
-                const month = monthMap.get(wi);
-                return (
-                  <div key={wi} className="relative h-3.5">
-                    {month ? (
-                      <span className="absolute left-0 top-0 whitespace-nowrap">
-                        {month}
-                      </span>
-                    ) : null}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Grid Area: Day Axis (Left) + 52 Week Columns (Right) */}
-          <div className="flex items-center">
-            {/* Day of week labels on left (Mon, Wed, Fri) */}
-            <div className="w-7 sm:w-8 shrink-0 flex flex-col gap-1 sm:gap-1.5 pr-1.5 font-mono text-[10px] text-foreground-subtle select-none">
+        <div className="min-w-max flex items-start">
+          {/* Day of week labels on left (Mon, Wed, Fri) aligned with 7 dot rows */}
+          <div className="w-7 sm:w-8 shrink-0 flex flex-col font-mono text-[10px] text-foreground-subtle select-none">
+            {/* Header spacer to match month labels row height */}
+            <div className="h-4 mb-1.5" />
+            <div className="flex flex-col gap-1 sm:gap-1.5">
               {DAY_LABELS.map((dayLabel, idx) => (
                 <span
                   key={idx}
-                  className="h-2.5 sm:h-3 flex items-center leading-none text-right justify-end"
+                  className="h-2.5 sm:h-3 flex items-center leading-none text-right justify-end pr-1.5"
                 >
                   {dayLabel}
                 </span>
               ))}
             </div>
+          </div>
 
-            {/* 52 Week Columns stretching full width */}
-            <div
-              className="grid grid-flow-col auto-cols-fr gap-1 sm:gap-1.5 w-full"
-              role="img"
-              aria-label={`${total} contributions across GitHub and Codolio`}
-            >
-              {calendar.weeks.map((week, wi) => (
-                <div key={wi} className="flex flex-col gap-1 sm:gap-1.5">
-                  {week.map((day) => {
-                    const breakdownParts: string[] = [];
-                    if (day.githubCount) {
-                      breakdownParts.push(
-                        `${day.githubCount} commit${day.githubCount > 1 ? "s" : ""}`
-                      );
-                    }
-                    if (day.codolioCount) {
-                      breakdownParts.push(
-                        `${day.codolioCount} DSA solve${day.codolioCount > 1 ? "s" : ""}`
-                      );
-                    }
-                    const detail =
-                      breakdownParts.length > 0
-                        ? ` (${breakdownParts.join(" · ")})`
-                        : "";
-                    const tooltip =
-                      day.count > 0
-                        ? `${day.count} activit${
-                            day.count === 1 ? "y" : "ies"
-                          } on ${day.date}${detail}`
-                        : `No activity on ${day.date}`;
-
-                    return (
-                      <span
-                        key={day.date}
-                        title={tooltip}
-                        className={`h-2.5 sm:h-3 w-full rounded-[2px] transition-transform hover:scale-125 ${
-                          LEVEL_CLASS[day.level]
-                        }`}
-                      />
-                    );
-                  })}
+          {/* Month Groups with visual separation between months */}
+          <div
+            className="flex items-start gap-2.5 sm:gap-3.5"
+            role="img"
+            aria-label={`${total} contributions on GitHub`}
+          >
+            {monthGroups.map((group) => (
+              <div key={group.key} className="flex flex-col shrink-0">
+                {/* Month Name Header */}
+                <div className="h-4 mb-1.5 flex items-center">
+                  <span className="font-mono text-[10px] font-medium text-foreground-subtle select-none">
+                    {group.label}
+                  </span>
                 </div>
-              ))}
-            </div>
+
+                {/* Week Columns of Dots for this Month */}
+                <div className="flex gap-1 sm:gap-1.5">
+                  {group.weeks.map((week, wi) => (
+                    <div key={wi} className="flex flex-col gap-1 sm:gap-1.5">
+                      {week.map((day) => {
+                        const tooltip =
+                          day.count > 0
+                            ? `${day.count} contribution${
+                                day.count === 1 ? "" : "s"
+                              } on ${day.date}`
+                            : `No contributions on ${day.date}`;
+
+                        return (
+                          <span
+                            key={day.date}
+                            title={tooltip}
+                            className={`h-2.5 sm:h-3 w-2.5 sm:w-3 rounded-[2px] transition-transform hover:scale-125 ${
+                              LEVEL_CLASS[day.level]
+                            }`}
+                          />
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
