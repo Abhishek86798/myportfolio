@@ -23,7 +23,7 @@ export function Journey({ data = [] }: { data?: any[] }) {
 
   return (
     <Section id="journey" variant="raised">
-      <SectionHeading id="journey" eyebrow="How I got here">Journey</SectionHeading>
+      <SectionHeading id="journey">Journey</SectionHeading>
 
       <div className="flex flex-col gap-10 sm:gap-14">
         {sortedYears.map((year, yearIdx) => {

@@ -58,7 +58,7 @@ export function Skills({ data = [] }: { data?: any[] }) {
 
   return (
     <Section id="skills" variant="base">
-      <SectionHeading id="skills" eyebrow="What I work with">Skills</SectionHeading>
+      <SectionHeading id="skills">Skills</SectionHeading>
 
       <div className="mt-8 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12">
         {/* Left Rail: Categories */}

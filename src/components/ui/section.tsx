@@ -51,8 +51,8 @@ export function SectionHeading({
   return (
     <Reveal className={cn("mb-8 sm:mb-10", className)}>
       {eyebrow ? (
-        <p className="mb-2.5 font-mono text-xs font-semibold uppercase tracking-wider text-accent">
-          {`// ${eyebrow.replace(/^\/\/\s*/, "").toUpperCase()}`}
+        <p className="mb-2 font-mono text-xs text-foreground-subtle">
+          {eyebrow.replace(/^\/\/\s*/, "")}
         </p>
       ) : null}
       <h2 className="group/heading relative text-4xl font-semibold tracking-tight text-foreground sm:text-5xl md:text-6xl flex items-baseline gap-3">

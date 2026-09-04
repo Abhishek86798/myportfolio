@@ -31,7 +31,7 @@ export function About({ data }: { data?: any }) {
 
   return (
     <Section id="about" variant="raised">
-      <SectionHeading id="about" eyebrow="Who I am">
+      <SectionHeading id="about">
         About
       </SectionHeading>
 
@@ -42,11 +42,11 @@ export function About({ data }: { data?: any }) {
             <Reveal key={item.specLabel || i} delay={i * 0.05}>
               <div className="grid grid-cols-1 md:grid-cols-12 py-5 sm:py-6 gap-3 md:gap-8 items-baseline transition-colors hover:bg-surface/30 px-2 sm:px-3 -mx-2 sm:-mx-3 rounded-lg">
                 {/* Left Column: Spec Label rail */}
-                <div className="md:col-span-4 flex items-center gap-2.5">
-                  <span className="font-mono text-xs font-semibold text-accent">
-                    0{i + 1}.
+                <div className="md:col-span-4 flex items-center gap-2">
+                  <span className="font-mono text-[11px] text-foreground-subtle/60">
+                    0{i + 1}
                   </span>
-                  <span className="font-mono text-small font-medium uppercase tracking-wider text-foreground-subtle">
+                  <span className="font-mono text-xs font-medium text-foreground-muted tracking-wide">
                     {item.specLabel}
                   </span>
                 </div>

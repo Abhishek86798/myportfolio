@@ -48,6 +48,7 @@ next-env.d.ts
 
 # Claude Code / agent config and planning docs (local-only, not shipped with the app)
 .claude/
+.agents/
 .mcp.json
 AGENTS.md
 CLAUDE.md

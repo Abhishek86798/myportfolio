@@ -34,7 +34,7 @@ export function Dashboard({
 
   return (
     <Section id="dashboard" variant="base">
-      <SectionHeading id="dashboard" eyebrow="What I'm up to">Activity & Depth</SectionHeading>
+      <SectionHeading id="dashboard">Activity & Depth</SectionHeading>
 
       {/* Optimal Shape: Heatmap, full width */}
       <Reveal className={CARD}>
@@ -88,9 +88,6 @@ export function Dashboard({
                       </span>
                       <span>·</span>
                       <span>{relativeTime(c.date)}</span>
-                      <span className="opacity-0 transition-opacity group-hover:opacity-100 text-accent">
-                        ↗
-                      </span>
                     </div>
                   </a>
                 </li>

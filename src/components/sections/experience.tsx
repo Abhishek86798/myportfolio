@@ -1,22 +1,7 @@
-import { ArrowUpRight } from "lucide-react";
 import { Section, SectionHeading } from "@/components/ui/section";
 import { Reveal } from "@/components/ui/reveal";
 
-const FALLBACK_METRICS: Record<string, { value: string; label: string }[]> = {
-  HiGigAi: [
-    { value: "$0/mo", label: "recurring infra" },
-    { value: "5", label: "branch subdomains" },
-    { value: "25+", label: "Sanity schemas" },
-  ],
-  "Trionix Technologies": [
-    { value: "500+", label: "users served" },
-    { value: "6", label: "backend modules" },
-    { value: "50%", label: "fewer DB round-trips" },
-  ],
-};
-
 export function Experience({ data = [] }: { data?: any[] }) {
-
   // Map Sanity schema fields to component expectations
   const normalizedData = data.map((job: any) => {
     const org = job.company || job.org || "Unknown";
@@ -30,9 +15,12 @@ export function Experience({ data = [] }: { data?: any[] }) {
         (job.description
           ? job.description.map((b: any) => b.children?.[0]?.text).filter(Boolean)
           : []),
-      orgUrl: job.orgUrl || (org === "HiGigAi" ? "https://www.tridentpublicschool.com/" : "https://trionixtechnologies.in/"),
+      orgUrl:
+        job.orgUrl ||
+        (org === "HiGigAi"
+          ? "https://www.tridentpublicschool.com/"
+          : "https://trionixtechnologies.in/"),
       location: job.location || "Remote",
-      metrics: (job.metrics && job.metrics.length > 0) ? job.metrics : (FALLBACK_METRICS[org] || []),
       engineerHighlights: job.engineerHighlights || [],
     };
   });
@@ -45,23 +33,22 @@ export function Experience({ data = [] }: { data?: any[] }) {
 
   return (
     <Section id="experience" variant="base">
-      <SectionHeading id="experience" eyebrow="Where I've worked">Experience</SectionHeading>
+      <SectionHeading id="experience">Experience</SectionHeading>
 
       <div className="flex flex-col gap-6 max-w-4xl mx-auto">
         {sortedData.map((job: any, i: number) => {
           const isLatest = i === 0;
-          const metrics = job.metrics || [];
 
           return (
             <Reveal key={job._id || `${job.org}-${job.period}-${i}`} delay={i * 0.05}>
               <article
                 className={`relative overflow-hidden rounded-2xl transition-all ${
                   isLatest
-                    ? "border border-border/90 bg-[#17181c] dark:bg-[#17181c] p-6 sm:p-8 shadow-2xl shadow-black/30 ring-1 ring-white/[0.06] before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-accent/50 before:to-transparent hover:border-accent/40"
-                    : "border border-border/40 bg-surface/30 dark:bg-surface/30 p-6 sm:p-8 hover:bg-surface/50 hover:border-border/60"
+                    ? "border border-border/90 bg-[#17181c] p-6 sm:p-8 shadow-2xl shadow-black/30 ring-1 ring-white/[0.06] before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-accent/50 before:to-transparent hover:border-accent/40"
+                    : "border border-border/40 bg-surface/30 p-6 sm:p-8 hover:bg-surface/50 hover:border-border/60"
                 }`}
               >
-                {/* Eyebrow: Differentiate role hierarchy */}
+                {/* Status Indicator & Period */}
                 <div className="mb-2.5 flex items-center justify-between">
                   {isLatest ? (
                     <span className="inline-flex items-center gap-1.5 font-mono text-xs font-semibold text-accent">
@@ -78,7 +65,7 @@ export function Experience({ data = [] }: { data?: any[] }) {
                   </span>
                 </div>
 
-                {/* Left-Aligned Header: No Letter Avatar */}
+                {/* Left-Aligned Header */}
                 <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-x-4 gap-y-1">
                   <h3 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">
                     {job.role}{" "}
@@ -87,35 +74,15 @@ export function Experience({ data = [] }: { data?: any[] }) {
                         href={job.orgUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-accent underline-offset-4 transition-colors hover:text-accent-hover hover:underline inline-flex items-center gap-0.5"
+                        className="text-accent underline-offset-4 transition-colors hover:text-accent-hover hover:underline"
                       >
-                        <span>@ {job.org}</span>
-                        <ArrowUpRight className="h-4 w-4 shrink-0" aria-hidden />
+                        @ {job.org}
                       </a>
                     ) : (
                       <span className="text-accent">@ {job.org}</span>
                     )}
                   </h3>
                 </div>
-
-                {/* Three Large Figures on a Hairline Row - strictly left-aligned */}
-                {metrics.length > 0 ? (
-                  <div className="mt-5 grid grid-cols-3 divide-x divide-border/60 border-y border-border/60 py-3.5">
-                    {metrics.slice(0, 3).map((m: any, idx: number) => (
-                      <div
-                        key={idx}
-                        className="flex flex-col px-4 first:pl-0 last:pr-0 text-left"
-                      >
-                        <span className="font-mono text-lg sm:text-xl font-semibold tabular-nums text-foreground tracking-tight">
-                          {m.value}
-                        </span>
-                        <span className="text-xs text-foreground-subtle truncate mt-0.5 font-medium">
-                          {m.label}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                ) : null}
 
                 {/* Bullet Points with Substantive Accomplishments */}
                 <ul className="mt-5 flex flex-col gap-2.5">
@@ -142,7 +109,7 @@ export function Experience({ data = [] }: { data?: any[] }) {
 
                 {/* Tech Stack Tags */}
                 {job.stack && job.stack.length > 0 ? (
-                  <div className="mt-5 flex flex-wrap gap-2">
+                  <div className="mt-5 flex flex-wrap gap-2 pt-2 border-t border-border/30">
                     {job.stack.map((tech: string) => (
                       <span
                         key={tech}

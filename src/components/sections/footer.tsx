@@ -12,26 +12,25 @@ export function Footer() {
       className="border-t border-black/[0.06] dark:border-white/[0.06] bg-background px-6 py-16 md:px-12 md:py-[88px]"
     >
       <div className="mx-auto w-full max-w-6xl">
-        <p className="font-mono text-xs font-semibold uppercase tracking-wider text-accent">
-          // CURRENTLY EXPLORING
-        </p>
-        <div className="mt-4 flex flex-col gap-2 font-mono text-small">
-          <div className="flex items-center gap-2.5 text-foreground">
-            <span className="text-accent font-bold">[x]</span>
-            <span>AI Security</span>
-          </div>
-          <div className="flex items-center gap-2.5 text-foreground">
-            <span className="text-accent font-bold">[x]</span>
-            <span>Agent Systems</span>
-          </div>
-          <div className="flex items-center gap-2.5 text-foreground-muted">
-            <span className="text-foreground-subtle font-bold">[ ]</span>
-            <span>Distributed Systems</span>
+        <div className="flex flex-col gap-3">
+          <span className="font-mono text-xs text-foreground-subtle">
+            Currently exploring
+          </span>
+          <div className="flex flex-wrap gap-2 font-mono text-xs">
+            <span className="rounded-full border border-border/80 bg-surface px-3 py-1 text-foreground">
+              AI Security
+            </span>
+            <span className="rounded-full border border-border/80 bg-surface px-3 py-1 text-foreground">
+              Agent Systems
+            </span>
+            <span className="rounded-full border border-border/60 bg-background-subtle px-3 py-1 text-foreground-muted">
+              Distributed Systems
+            </span>
           </div>
         </div>
 
         <p className="mt-8 max-w-xl text-title font-semibold tracking-tight text-foreground">
-          Open to internships. Let&apos;s build something awesome.
+          Open to internships. Let&apos;s build something together.
         </p>
 
         <div className="mt-8 flex items-center gap-3">

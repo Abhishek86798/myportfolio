@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Section, SectionHeading } from "@/components/ui/section";
 import { Reveal } from "@/components/ui/reveal";
 import { BlogCard } from "@/components/blog/blog-card";
@@ -11,13 +11,13 @@ export function Blog({ posts }: { posts: PostMeta[] }) {
   return (
     <Section id="blog" variant="raised">
       <div className="flex items-end justify-between gap-4">
-        <SectionHeading id="blog" eyebrow="Writing">Blog</SectionHeading>
+        <SectionHeading id="blog">Blog</SectionHeading>
         <Link
           href="/blog"
           className="mb-8 hidden shrink-0 items-center gap-1.5 text-small font-medium text-accent transition-colors hover:text-accent-hover sm:inline-flex sm:mb-10"
         >
           All posts
-          <ArrowUpRight className="h-4 w-4" aria-hidden />
+          <ArrowRight className="h-4 w-4" aria-hidden />
         </Link>
       </div>
 
@@ -34,7 +34,7 @@ export function Blog({ posts }: { posts: PostMeta[] }) {
         className="mt-6 inline-flex items-center gap-1.5 text-small font-medium text-accent transition-colors hover:text-accent-hover sm:hidden"
       >
         All posts
-        <ArrowUpRight className="h-4 w-4" aria-hidden />
+        <ArrowRight className="h-4 w-4" aria-hidden />
       </Link>
     </Section>
   );

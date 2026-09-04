@@ -21,8 +21,9 @@ export function Hero({
   settings?: any;
   stats?: GitHubStats;
 }) {
-  const currentFocus =
-    settings?.currentlyBuilding || siteConfig.status.project;
+  const rawFocus = settings?.currentlyBuilding || siteConfig.status.project;
+  const currentFocus = (typeof rawFocus === "string" ? rawFocus : "")
+    .replace(/^Currently\s+Building\s*[-—:]*\s*/i, "");
 
   const lastCommit = stats?.latestCommit || stats?.recentCommits?.[0];
   const totalContributions = stats?.contributions?.total ?? 435;
@@ -34,7 +35,7 @@ export function Hero({
   const updatedAt = stats?.updatedAt || "3h ago";
 
   return (
-    <section className="relative flex min-h-[72vh] md:min-h-[76vh] flex-col justify-center px-6 py-14 md:px-12 md:py-20 bg-background overflow-hidden border-t-0">
+    <section className="relative flex min-h-[calc(100dvh-4.25rem)] md:min-h-[calc(100dvh-4.5rem)] flex-col justify-center px-6 py-12 md:px-12 md:py-16 bg-background overflow-hidden border-t-0">
       <div className="mx-auto w-full max-w-6xl z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           {/* Left 7 Columns: Core Pitch & Typography */}
@@ -54,7 +55,7 @@ export function Hero({
             <div className="mt-8 flex flex-wrap items-center gap-4 sm:gap-6">
               <a
                 href="#projects"
-                className="inline-flex touch-manipulation items-center justify-center rounded-lg bg-accent px-5 py-2.5 text-small font-medium text-accent-foreground transition-all hover:bg-accent-hover active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background shadow-sm"
+                className="inline-flex touch-manipulation items-center justify-center rounded-lg bg-accent px-5 py-2.5 text-small font-medium text-accent-foreground transition-colors hover:bg-accent-hover active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background shadow-sm"
               >
                 View Projects
               </a>
@@ -62,7 +63,7 @@ export function Hero({
                 href={settings?.resumeUrl || siteConfig.links.resume}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex touch-manipulation items-center justify-center rounded-lg border border-border px-5 py-2.5 text-small font-medium text-foreground transition-all hover:border-accent hover:text-accent active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                className="inline-flex touch-manipulation items-center justify-center rounded-lg border border-border px-5 py-2.5 text-small font-medium text-foreground transition-colors hover:border-accent hover:text-accent active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 Résumé
               </a>
@@ -81,7 +82,7 @@ export function Hero({
           <div className="lg:col-span-5 w-full">
             <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-surface/60 p-5 sm:p-6 backdrop-blur-sm shadow-xl shadow-black/20 before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent">
               {/* Header: Title + Honest Mono Timestamp (no fake green dot) */}
-              <div className="flex items-center justify-between border-b border-border/60 pb-3">
+              <div className="flex items-center justify-between border-b border-border/60 pb-3.5">
                 <div className="flex items-center gap-2">
                   <Activity className="h-4 w-4 text-accent" aria-hidden />
                   <span className="font-mono text-xs font-semibold uppercase tracking-wider text-foreground">
@@ -95,11 +96,11 @@ export function Hero({
 
               {/* Measured Telemetry Rows */}
               <div className="divide-y divide-border/50">
-                {/* Row 1: Current Focus — dynamic from Sanity siteSettings */}
-                <div className="pb-3.5">
+                {/* Row 1: Currently Building — dynamic from Sanity siteSettings */}
+                <div className="py-4">
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-mono text-xs text-foreground-subtle">
-                      Current focus
+                      Currently building
                     </span>
                     <span className="inline-flex items-center gap-1.5 font-mono text-[11px] text-accent">
                       <span className="relative flex h-1.5 w-1.5">
@@ -109,13 +110,13 @@ export function Hero({
                       active
                     </span>
                   </div>
-                  <p className="mt-1 font-mono text-small font-medium text-foreground">
+                  <p className="mt-2 font-mono text-small font-medium text-foreground leading-snug">
                     {currentFocus}
                   </p>
                 </div>
 
                 {/* Row 2: Last commit — message, repo, relative time */}
-                <div className="py-3.5">
+                <div className="py-4">
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-mono text-xs text-foreground-subtle">
                       Last commit
@@ -140,15 +141,12 @@ export function Hero({
                         <span className="rounded bg-background-subtle px-1.5 py-0.5 border border-border/60 text-foreground-muted">
                           {lastCommit.repo.split("/").pop()}
                         </span>
-                        <span className="opacity-0 transition-opacity group-hover:opacity-100 text-accent">
-                          ↗
-                        </span>
                       </div>
                     </a>
                   ) : null}
                 </div>
 
-                {/* Row 2: Contributions, past 52 weeks — number + real weekly commit bars */}
+                {/* Row 3: Contributions, past 52 weeks — number + real weekly commit bars */}
                 <div className="py-4">
                   <div className="flex items-baseline justify-between gap-2 mb-3">
                     <span className="font-mono text-xs text-foreground-subtle">
@@ -198,8 +196,8 @@ export function Hero({
                   </div>
                 </div>
 
-                {/* Row 3: Production — 500+ users, 2 platforms (the one hard outcome) */}
-                <div className="py-4">
+                {/* Row 4: Production — 500+ users, 2 platforms (the one hard outcome) */}
+                <div className="pt-4 pb-1">
                   <div className="flex items-baseline justify-between gap-2">
                     <span className="font-mono text-xs text-foreground-subtle">
                       Production

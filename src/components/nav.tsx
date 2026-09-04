@@ -161,7 +161,7 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-0 bg-transparent pointer-events-none py-3 md:py-4 transition-all duration-200">
+    <header className="sticky top-0 z-50 w-full border-0 bg-transparent pointer-events-none py-3 md:py-4 transition-colors duration-200">
       <nav className="relative mx-auto flex w-full max-w-6xl items-center justify-end px-4 sm:px-6 md:px-12">
 
         {/* Center: Sleek floating segmented pill navigation on desktop — dead-centered via absolute positioning */}
@@ -176,7 +176,7 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
                     onClick={(e) => handleNavClick(e, link.href)}
                     aria-current={isActive ? "true" : undefined}
                     className={cn(
-                      "inline-flex items-center justify-center h-7 px-3 rounded-full text-xs font-mono leading-none transition-all duration-150",
+                      "inline-flex items-center justify-center h-7 px-3 rounded-full text-xs font-mono leading-none transition-colors duration-150",
                       isActive
                         ? "bg-accent/15 text-accent font-medium shadow-xs"
                         : "text-foreground-muted hover:text-foreground hover:bg-white/[0.04]"
