@@ -9,6 +9,8 @@ import { remarkUnwrapImages } from "@/lib/remark-unwrap-images";
 import type { Metadata } from "next";
 import { getPost, getPostSlugs } from "@/lib/blog";
 import { mdxComponents } from "@/components/blog/mdx-components";
+import { PortableTextRenderer } from "@/components/blog/portable-text";
+import { highlightSanityBlocks } from "@/lib/sanity-highlight";
 import { ReadingProgress } from "@/components/blog/reading-progress";
 import { TableOfContents } from "@/components/blog/table-of-contents";
 import { formatDate } from "@/lib/format";
@@ -43,6 +45,12 @@ export default async function BlogPostPage({
   const { slug } = await params;
   const post = await getPost(slug);
   if (!post) notFound();
+
+  // If Sanity post, pre-highlight any code blocks with Shiki
+  const sanityBody =
+    post.source === "sanity" && post.body
+      ? await highlightSanityBlocks(post.body)
+      : null;
 
   return (
     <>
@@ -85,27 +93,31 @@ export default async function BlogPostPage({
           {/* Body + TOC */}
           <div className="mt-12 gap-12 lg:grid lg:grid-cols-[minmax(0,68ch)_1fr]">
             <div className="min-w-0">
-              <MDXRemote
-                source={post.content}
-                components={mdxComponents}
-                options={{
-                  mdxOptions: {
-                    remarkPlugins: [remarkGfm, remarkUnwrapImages],
-                    rehypePlugins: [
-                      rehypeSlug,
-                      [
-                        rehypeShiki,
-                        {
-                          themes: {
-                            light: "github-light",
-                            dark: "github-dark-dimmed",
+              {post.source === "sanity" && sanityBody ? (
+                <PortableTextRenderer value={sanityBody} />
+              ) : post.content ? (
+                <MDXRemote
+                  source={post.content}
+                  components={mdxComponents}
+                  options={{
+                    mdxOptions: {
+                      remarkPlugins: [remarkGfm, remarkUnwrapImages],
+                      rehypePlugins: [
+                        rehypeSlug,
+                        [
+                          rehypeShiki,
+                          {
+                            themes: {
+                              light: "github-light",
+                              dark: "github-dark-dimmed",
+                            },
                           },
-                        },
+                        ],
                       ],
-                    ],
-                  },
-                }}
-              />
+                    },
+                  }}
+                />
+              ) : null}
 
               {post.canonical ? (
                 <p className="mt-12 border-t border-border pt-6 text-small text-foreground-subtle">

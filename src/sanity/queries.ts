@@ -81,3 +81,26 @@ export const projectBySlugQuery = groq`*[_type == "project" && slug.current == $
   content
 }`
 
+export const postsQuery = groq`*[_type == "post" && defined(slug.current)] | order(publishedAt desc) {
+  _id,
+  title,
+  "slug": slug.current,
+  "date": publishedAt,
+  "description": excerpt,
+  tags,
+  canonical,
+  "cover": coverImage.asset->url,
+  body
+}`
+
+export const postBySlugQuery = groq`*[_type == "post" && slug.current == $slug][0] {
+  _id,
+  title,
+  "slug": slug.current,
+  "date": publishedAt,
+  "description": excerpt,
+  tags,
+  canonical,
+  "cover": coverImage.asset->url,
+  body
+}`
