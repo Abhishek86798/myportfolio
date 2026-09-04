@@ -20,7 +20,7 @@ export async function sanityFetch<QueryResponse>({
   const isDev = process.env.NODE_ENV === 'development'
   return client.fetch<QueryResponse>(query, params, {
     next: {
-      revalidate: isDev ? 0 : (tags?.length ? false : 3600),
+      revalidate: isDev ? 0 : 60,
       tags,
     },
   })
