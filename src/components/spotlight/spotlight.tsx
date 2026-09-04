@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import { Search, CornerDownLeft, ArrowUp, ArrowDown } from "lucide-react";
 import { searchItems, type SpotlightItem } from "@/lib/spotlight";
+import { cn } from "@/lib/utils";
 
 const GROUP_ORDER: SpotlightItem["group"][] = [
   "Sections",
@@ -20,7 +21,13 @@ const GROUP_ORDER: SpotlightItem["group"][] = [
   "Actions",
 ];
 
-export function Spotlight({ items }: { items: SpotlightItem[] }) {
+export function Spotlight({
+  items,
+  triggerClassName,
+}: {
+  items: SpotlightItem[];
+  triggerClassName?: string;
+}) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
@@ -143,9 +150,12 @@ export function Spotlight({ items }: { items: SpotlightItem[] }) {
         onClick={() => setOpen(true)}
         aria-label="Open search (Command K)"
         title="Search (⌘K)"
-        className="inline-flex h-9 items-center gap-2 rounded-lg border border-border px-2.5 text-small text-foreground-subtle transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        className={cn(
+          "inline-flex h-9 items-center gap-2 rounded-lg border border-border px-2.5 text-small text-foreground-subtle transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          triggerClassName
+        )}
       >
-        <Search className="h-4 w-4" aria-hidden />
+        <Search className="h-3.5 w-3.5" aria-hidden />
         <kbd className="hidden font-mono text-[0.7rem] sm:inline">⌘K</kbd>
       </button>
 

@@ -24,50 +24,71 @@ const NAV_LINKS = [
 
 const DESKTOP_LINKS = NAV_LINKS.filter((l) => l.desktop !== false);
 
-/** Scroll-spy: highlights the nav link for the section currently in view. */
+/** Robust scroll-position based section tracker */
 function useActiveSection(ids: string[]) {
   const [active, setActive] = useState<string | null>(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-        if (visible[0]) setActive(visible[0].target.id);
-      },
-      { rootMargin: "-40% 0px -55% 0px", threshold: [0, 0.25, 0.5, 1] }
-    );
+    const updateActive = () => {
+      if (typeof window === "undefined") return;
 
-    const nodes = ids
-      .map((id) => document.getElementById(id))
-      .filter((n): n is HTMLElement => n !== null);
-    nodes.forEach((n) => observer.observe(n));
+      const scrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
 
-    return () => observer.disconnect();
+      // If at very bottom of document, activate the last section (#blog)
+      if (scrollY + windowHeight >= documentHeight - 60) {
+        setActive(ids[ids.length - 1]);
+        return;
+      }
+
+      // If at very top (in hero section, before #about)
+      const firstSection = document.getElementById(ids[0]);
+      if (firstSection && scrollY < firstSection.offsetTop - 200) {
+        setActive(null);
+        return;
+      }
+
+      // Target scroll threshold line for sticky floating header
+      const targetLine = scrollY + 160;
+      let current: string | null = null;
+
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (el) {
+          if (el.offsetTop <= targetLine) {
+            current = id;
+          }
+        }
+      }
+
+      setActive(current);
+    };
+
+    // Check on mount (handles page load at #blog or hash URL)
+    updateActive();
+
+    window.addEventListener("scroll", updateActive, { passive: true });
+    window.addEventListener("resize", updateActive, { passive: true });
+    window.addEventListener("hashchange", updateActive, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", updateActive);
+      window.removeEventListener("resize", updateActive);
+      window.removeEventListener("hashchange", updateActive);
+    };
   }, [ids]);
 
-  return active;
+  return [active, setActive] as const;
 }
 
 export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
-  const active = useActiveSection(NAV_LINKS.map((l) => l.id));
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [active, setActive] = useActiveSection(NAV_LINKS.map((l) => l.id));
   const [menuOpen, setMenuOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
-
-  // Track scroll position to transition header from transparent to backdrop-blurred with hairline border.
-  useEffect(() => {
-    const onScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   // Lock body scroll while mobile menu is open.
   useEffect(() => {
@@ -123,9 +144,11 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     if (href.startsWith("#")) {
       e.preventDefault();
-      const target = document.querySelector(href);
+      const targetId = href.slice(1);
+      const target = document.getElementById(targetId);
       if (target) {
-        const headerOffset = 88; // 64px header + 24px clearance
+        setActive(targetId);
+        const headerOffset = 90; // floating nav clearance
         const elementPosition = target.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.scrollY - headerOffset;
         window.scrollTo({
@@ -138,17 +161,10 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
   };
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-50 border-t-0 transition-all duration-200",
-        isScrolled
-          ? "border-b border-border/70 bg-background/85 backdrop-blur-md shadow-xs"
-          : "border-b border-transparent bg-background/40 backdrop-blur-xs"
-      )}
-    >
-      <nav className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6 md:px-12">
-        {/* Left: Brand Identity + Live Status Badge */}
-        <div className="flex items-center gap-3">
+    <header className="sticky top-0 z-50 w-full border-0 bg-transparent pointer-events-none py-3 md:py-4 transition-all duration-200">
+      <nav className="relative mx-auto flex w-full max-w-6xl items-center justify-between px-4 sm:px-6 md:px-12">
+        {/* Left: Brand Identity (Clean, no available badge) */}
+        <div className="pointer-events-auto flex items-center">
           <Link
             href="/"
             onClick={(e) => {
@@ -156,26 +172,16 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
               window.scrollTo({ top: 0, behavior: "smooth" });
               history.pushState(null, "", "/");
             }}
-            className="group flex items-center gap-1.5 rounded-lg text-sm font-semibold tracking-tight text-foreground transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="group font-mono text-sm font-semibold tracking-tight text-foreground transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent rounded-sm"
           >
-            <span className="font-mono text-sm tracking-tight text-foreground group-hover:text-accent transition-colors">
-              {siteConfig.name.split(" ")[0]}
-              <span className="text-accent">.</span>
-            </span>
+            {siteConfig.name.split(" ")[0]}
+            <span className="text-accent">.</span>
           </Link>
-
-          <div className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-accent/25 bg-accent/10 px-2 py-0.5 text-[11px] font-mono text-accent">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
-            </span>
-            <span>available</span>
-          </div>
         </div>
 
-        {/* Center: Sleek floating segmented pill navigation on desktop */}
-        <div className="hidden md:flex items-center">
-          <ul className="flex items-center gap-0.5 rounded-full border border-border/80 bg-surface/80 p-1 backdrop-blur-md shadow-xs">
+        {/* Center: Sleek floating segmented pill navigation on desktop — dead-centered via absolute positioning */}
+        <div className="pointer-events-auto hidden md:flex items-center absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          <ul className="flex items-center gap-1 rounded-full border border-border/80 bg-surface/90 p-1 backdrop-blur-md shadow-xs">
             {DESKTOP_LINKS.map((link) => {
               const isActive = active === link.id;
               return (
@@ -185,7 +191,7 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
                     onClick={(e) => handleNavClick(e, link.href)}
                     aria-current={isActive ? "true" : undefined}
                     className={cn(
-                      "relative rounded-full px-3 py-1 text-xs font-mono transition-all duration-150",
+                      "inline-flex items-center justify-center h-7 px-3 rounded-full text-xs font-mono leading-none transition-all duration-150",
                       isActive
                         ? "bg-accent/15 text-accent font-medium shadow-xs"
                         : "text-foreground-muted hover:text-foreground hover:bg-white/[0.04]"
@@ -200,8 +206,11 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
         </div>
 
         {/* Right: Spotlight, GitHub Profile, Contact CTA & Mobile Menu Trigger */}
-        <div className="flex items-center gap-2">
-          <Spotlight items={spotlightIndex} />
+        <div className="pointer-events-auto flex items-center gap-1 rounded-full border border-border/80 bg-surface/90 p-1 backdrop-blur-md shadow-xs">
+          <Spotlight
+            items={spotlightIndex}
+            triggerClassName="h-7 px-2.5 rounded-full border-0 bg-transparent text-xs text-foreground-muted hover:text-accent hover:bg-white/[0.04] focus-visible:ring-1"
+          />
 
           <a
             href={siteConfig.links.github}
@@ -209,18 +218,18 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
             rel="noopener noreferrer"
             aria-label="GitHub profile"
             title="GitHub profile"
-            className="hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border text-foreground-muted transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="hidden sm:inline-flex h-7 w-7 items-center justify-center rounded-full text-foreground-muted transition-colors hover:bg-white/[0.04] hover:text-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
           >
-            <GithubIcon className="h-4 w-4" />
+            <GithubIcon className="h-3.5 w-3.5" />
           </a>
 
           <a
             href={`mailto:${siteConfig.email}`}
             aria-label="Get in touch"
-            className="hidden lg:inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-border text-xs font-mono text-foreground-muted transition-colors hover:border-accent/60 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="hidden lg:inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-[11px] font-mono text-foreground-muted transition-colors hover:bg-white/[0.04] hover:text-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
           >
             <span>contact</span>
-            <ArrowUpRight className="h-3.5 w-3.5 text-accent" />
+            <ArrowUpRight className="h-3 w-3 text-accent" />
           </a>
 
           {/* Mobile menu trigger */}
@@ -231,9 +240,9 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
             aria-label="Open navigation menu"
             aria-expanded={menuOpen}
             aria-haspopup="dialog"
-            className="inline-flex h-9 w-9 touch-manipulation items-center justify-center rounded-lg border border-border text-foreground-muted transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:hidden"
+            className="inline-flex h-7 w-7 touch-manipulation items-center justify-center rounded-full text-foreground-muted transition-colors hover:bg-white/[0.04] hover:text-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent md:hidden"
           >
-            <Menu className="h-4 w-4" aria-hidden />
+            <Menu className="h-3.5 w-3.5" aria-hidden />
           </button>
         </div>
       </nav>
@@ -260,19 +269,10 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
                 <div>
                   {/* Drawer Header */}
                   <div className="flex items-center justify-between border-b border-border/60 pb-4">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-sm font-semibold tracking-tight text-foreground">
-                        {siteConfig.name.split(" ")[0]}
-                        <span className="text-accent">.</span>
-                      </span>
-                      <span className="inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent/10 px-2 py-0.5 text-[10px] font-mono text-accent">
-                        <span className="relative flex h-1.5 w-1.5">
-                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-                          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
-                        </span>
-                        <span>available</span>
-                      </span>
-                    </div>
+                    <span className="font-mono text-sm font-semibold tracking-tight text-foreground">
+                      {siteConfig.name.split(" ")[0]}
+                      <span className="text-accent">.</span>
+                    </span>
                     <button
                       type="button"
                       onClick={() => setMenuOpen(false)}
