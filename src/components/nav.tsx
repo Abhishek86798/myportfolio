@@ -162,22 +162,7 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
 
   return (
     <header className="sticky top-0 z-50 w-full border-0 bg-transparent pointer-events-none py-3 md:py-4 transition-all duration-200">
-      <nav className="relative mx-auto flex w-full max-w-6xl items-center justify-between px-4 sm:px-6 md:px-12">
-        {/* Left: Brand Identity (Clean, no available badge) */}
-        <div className="pointer-events-auto flex items-center">
-          <Link
-            href="/"
-            onClick={(e) => {
-              e.preventDefault();
-              window.scrollTo({ top: 0, behavior: "smooth" });
-              history.pushState(null, "", "/");
-            }}
-            className="group font-mono text-sm font-semibold tracking-tight text-foreground transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent rounded-sm"
-          >
-            {siteConfig.name.split(" ")[0]}
-            <span className="text-accent">.</span>
-          </Link>
-        </div>
+      <nav className="relative mx-auto flex w-full max-w-6xl items-center justify-end px-4 sm:px-6 md:px-12">
 
         {/* Center: Sleek floating segmented pill navigation on desktop — dead-centered via absolute positioning */}
         <div className="pointer-events-auto hidden md:flex items-center absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
