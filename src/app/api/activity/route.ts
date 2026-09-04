@@ -1,19 +1,28 @@
 import { NextResponse } from "next/server";
-import { getGitHubStats } from "@/lib/data/github";
+import { getGitHubStats, mergeUnifiedContributions } from "@/lib/data/github";
+import { getCodingStats } from "@/lib/data/codolio";
 
 export const revalidate = 60; // 1-minute caching for near-live freshness
 
 export async function GET() {
   try {
-    const ghStats = await getGitHubStats();
+    const [ghStats, codingStats] = await Promise.all([
+      getGitHubStats(),
+      getCodingStats(),
+    ]);
+
+    const unified = mergeUnifiedContributions(
+      ghStats.contributions,
+      codingStats.dailySubmissions
+    );
 
     return NextResponse.json({
       success: true,
-      contributions: ghStats.contributions,
-      activeDays: ghStats.activeDays,
-      longestStreak: ghStats.longestStreak,
-      weeklySparkline: ghStats.weeklySparkline,
-      total: ghStats.contributions.total,
+      contributions: unified.contributions,
+      activeDays: unified.activeDays,
+      longestStreak: unified.longestStreak,
+      weeklySparkline: unified.weeklySparkline,
+      total: unified.total,
       recentCommits: ghStats.recentCommits,
       updatedAt: "just now",
     }, {

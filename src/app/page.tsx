@@ -31,7 +31,19 @@ export default async function Home() {
     sanityFetch({ query: siteSettingsQuery, tags: ["siteSettings"] }),
   ]);
 
-  const stats: GitHubStats = rawStats;
+  // Datewise union of GitHub contributions & Codolio DSA submissions
+  const unified = mergeUnifiedContributions(
+    rawStats.contributions,
+    coding.dailySubmissions
+  );
+
+  const stats: GitHubStats = {
+    ...rawStats,
+    contributions: unified.contributions,
+    activeDays: unified.activeDays,
+    longestStreak: unified.longestStreak,
+    weeklySparkline: unified.weeklySparkline,
+  };
 
   const spotlightIndex = buildSpotlightIndex(posts);
 

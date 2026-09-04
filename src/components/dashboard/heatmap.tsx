@@ -223,12 +223,27 @@ export function Heatmap({
                           );
                         }
 
+                        const breakdownParts: string[] = [];
+                        if (day.githubCount) {
+                          breakdownParts.push(
+                            `${day.githubCount} commit${day.githubCount > 1 ? "s" : ""}`
+                          );
+                        }
+                        if (day.codolioCount) {
+                          breakdownParts.push(
+                            `${day.codolioCount} DSA solve${day.codolioCount > 1 ? "s" : ""}`
+                          );
+                        }
+                        const detail =
+                          breakdownParts.length > 0
+                            ? ` (${breakdownParts.join(" · ")})`
+                            : "";
                         const tooltip =
                           day.count > 0
-                            ? `${day.count} contribution${
-                                day.count === 1 ? "" : "s"
-                              } on ${day.date}`
-                            : `No contributions on ${day.date}`;
+                            ? `${day.count} activit${
+                                day.count === 1 ? "y" : "ies"
+                              } on ${day.date}${detail}`
+                            : `No activity on ${day.date}`;
 
                         return (
                           <span
