@@ -49,12 +49,17 @@ function StackingProjectCard({
   // Drop brightness to 70% as the next card covers it (depth without blur/glow)
   const filter = useTransform(scrollYProgress, [0, 1], ["brightness(1)", "brightness(0.7)"]);
 
-  // Resolve screenshot: Sanity image asset OR local asset for AyuSynapse if Sanity asset not uploaded yet
+  // Resolve screenshot: Sanity image asset OR local asset if Sanity asset not uploaded yet
+  const fallbackImages: Record<string, string> = {
+    ayusynapse: "/projects/ayusynapse.jpg",
+    "mcp-zero-trust-security-gateway": "/projects/mcp-zero-trust.jpg",
+    "mcp-zero-trust-gateway": "/projects/mcp-zero-trust.jpg",
+    cidra: "/projects/cidra.jpg",
+  };
+
   const imageUrl = project.image
     ? urlForImage(project.image)?.url()
-    : project.slug === "ayusynapse"
-    ? "/projects/ayusynapse.jpg"
-    : null;
+    : fallbackImages[project.slug] || null;
 
   const navigateToCaseStudy = () => {
     router.push(`/projects/${project.slug}`);

@@ -124,29 +124,42 @@ export default async function ProjectCaseStudyPage({
           {/* Right Column (Scrolling Evidence & Writeup) */}
           <div className="lg:col-span-7 flex flex-col gap-10">
             {/* Gallery Images */}
-            {project.images && project.images.length > 0 ? (
-              <div className="flex flex-col gap-8">
-                {project.images.map((img: any, i: number) => (
-                  <div
-                    key={i}
-                    className="overflow-hidden rounded-2xl border border-border bg-surface p-2 shadow-xl"
-                  >
-                    <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-background-subtle">
-                      <Image
-                        src={urlForImage(img)?.url() || ""}
-                        alt={`${project.title} screenshot ${i + 1}`}
-                        fill
-                        className="object-cover"
-                      />
+            {(() => {
+              const fallbackImages: Record<string, string[]> = {
+                ayusynapse: ["/projects/ayusynapse.jpg"],
+                "mcp-zero-trust-security-gateway": ["/projects/mcp-zero-trust.jpg"],
+                "mcp-zero-trust-gateway": ["/projects/mcp-zero-trust.jpg"],
+                cidra: ["/projects/cidra.jpg"],
+              };
+              const galleryImages: string[] =
+                project.images && project.images.length > 0
+                  ? project.images.map((img: any) => urlForImage(img)?.url()).filter(Boolean)
+                  : fallbackImages[project.slug] || [];
+
+              return galleryImages.length > 0 ? (
+                <div className="flex flex-col gap-8">
+                  {galleryImages.map((src: string, i: number) => (
+                    <div
+                      key={i}
+                      className="overflow-hidden rounded-2xl border border-border bg-surface p-2 shadow-xl"
+                    >
+                      <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-background-subtle">
+                        <Image
+                          src={src}
+                          alt={`${project.title} screenshot ${i + 1}`}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-border bg-surface p-8 text-center font-mono text-small text-foreground-muted">
-                [ Architectural telemetry & diagrams active in local builds ]
-              </div>
-            )}
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-border bg-surface p-8 text-center font-mono text-small text-foreground-muted">
+                  [ Architectural telemetry & diagrams active in local builds ]
+                </div>
+              );
+            })()}
 
             {/* Detailed Content / Writeup */}
             {project.content ? (
