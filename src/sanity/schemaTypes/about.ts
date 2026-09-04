@@ -2,61 +2,67 @@ import { defineArrayMember, defineField, defineType } from 'sanity'
 
 export const aboutType = defineType({
   name: 'about',
-  title: 'About & Philosophy',
+  title: 'About',
   type: 'document',
   fields: [
     defineField({
-      name: 'headline',
-      title: 'Headline Statement',
-      type: 'string',
-      description: 'Bold personal engineering headline',
-      validation: (rule) => rule.required(),
-    }),
-    defineField({
-      name: 'narrative',
-      title: 'Narrative Story (First-Person)',
-      type: 'array',
-      of: [defineArrayMember({ type: 'text' })],
-      description: 'First-person paragraphs explaining your philosophy, background, and focus',
-      validation: (rule) => rule.required().min(1),
-    }),
-    defineField({
-      name: 'principles',
-      title: 'Engineering Principles / Pillars',
+      name: 'items',
+      title: 'About Items',
       type: 'array',
       of: [
         defineArrayMember({
           type: 'object',
           fields: [
             defineField({
-              name: 'title',
-              title: 'Principle Title',
+              name: 'specLabel',
+              title: 'Label / Tag',
               type: 'string',
+              description: 'e.g. "Academics", "Focus", "AI & Security", "Status"',
               validation: (rule) => rule.required(),
             }),
             defineField({
-              name: 'tag',
-              title: 'Domain / Tag',
+              name: 'label',
+              title: 'Headline / Title',
               type: 'string',
-              description: 'e.g. "Systems & Sandboxing", "Database Architecture"',
+              description: 'e.g. "B.Tech IT + MBA @ IIITM Gwalior"',
+              validation: (rule) => rule.required(),
+            }),
+            defineField({
+              name: 'meta',
+              title: 'Right-side Meta Tag',
+              type: 'string',
+              description: 'e.g. "2022–2027" or "Go · Python · Postgres"',
             }),
             defineField({
               name: 'description',
-              title: 'Detailed Explanation',
+              title: 'Crisp Description',
               type: 'text',
-              rows: 3,
+              rows: 2,
               validation: (rule) => rule.required(),
             }),
+            defineField({
+              name: 'icon',
+              title: 'Icon Keyword (Optional)',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Graduation Cap', value: 'graduation' },
+                  { title: 'Terminal', value: 'terminal' },
+                  { title: 'Shield', value: 'shield' },
+                  { title: 'Code', value: 'code' },
+                  { title: 'Briefcase / Status', value: 'rocket' },
+                ],
+              },
+            }),
           ],
+          preview: {
+            select: {
+              title: 'label',
+              subtitle: 'specLabel',
+            },
+          },
         }),
       ],
-    }),
-    defineField({
-      name: 'currentFocus',
-      title: 'Current Focus / Status',
-      type: 'text',
-      rows: 2,
-      description: 'Brief note on what you are currently exploring or looking for',
     }),
   ],
 })

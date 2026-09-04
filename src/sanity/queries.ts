@@ -7,14 +7,13 @@ export const siteSettingsQuery = groq`*[_type == "siteSettings"][0] {
 
 export const aboutQuery = groq`*[_type == "about"][0] {
   _id,
-  headline,
-  narrative,
-  principles[] {
-    title,
-    tag,
-    description
-  },
-  currentFocus
+  items[] {
+    specLabel,
+    label,
+    meta,
+    description,
+    icon
+  }
 }`
 
 export const journeyQuery = groq`*[_type == "journey"] | order(order asc) {
