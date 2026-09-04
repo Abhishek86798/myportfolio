@@ -8,18 +8,27 @@ const EXPLORING = ["AI Security", "Agent Systems", "Distributed Systems"];
 
 export function Footer() {
   return (
-    <footer id="contact" className="border-t border-border px-6 py-20 md:px-12">
+    <footer
+      id="contact"
+      className="border-t border-black/[0.06] dark:border-white/[0.06] bg-background px-6 py-16 md:px-12 md:py-[88px]"
+    >
       <div className="mx-auto w-full max-w-6xl">
-        <p className="flex items-center gap-2 text-small font-medium uppercase tracking-widest text-foreground-muted">
-          <span className="h-px w-6 bg-accent" aria-hidden />
-          Currently exploring
+        <p className="font-mono text-xs font-semibold uppercase tracking-wider text-accent">
+          // CURRENTLY EXPLORING
         </p>
-        <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
-          {EXPLORING.map((item) => (
-            <span key={item} className="text-body-lg text-foreground">
-              <span className="text-accent">✓</span> {item}
-            </span>
-          ))}
+        <div className="mt-4 flex flex-col gap-2 font-mono text-small">
+          <div className="flex items-center gap-2.5 text-foreground">
+            <span className="text-accent font-bold">[x]</span>
+            <span>AI Security</span>
+          </div>
+          <div className="flex items-center gap-2.5 text-foreground">
+            <span className="text-accent font-bold">[x]</span>
+            <span>Agent Systems</span>
+          </div>
+          <div className="flex items-center gap-2.5 text-foreground-muted">
+            <span className="text-foreground-subtle font-bold">[ ]</span>
+            <span>Distributed Systems</span>
+          </div>
         </div>
 
         <p className="mt-8 max-w-xl text-title font-semibold tracking-tight text-foreground">
@@ -62,9 +71,11 @@ export function Footer() {
           </EmailAction>
         </p>
 
-        <div className="mt-12 flex items-center justify-between gap-4">
-          <p className="text-small text-foreground-subtle">
-            © {new Date().getFullYear()} {siteConfig.name}. Built with Next.js.
+        <div className="mt-12 flex items-center justify-between gap-4 font-mono text-xs text-foreground-subtle border-t border-border/40 pt-6">
+          <p className="flex items-center gap-2">
+            <span>© {new Date().getFullYear()} {siteConfig.name}. Built with Next.js.</span>
+            <span>·</span>
+            <span className="text-foreground-muted">exit 0</span>
           </p>
           {/* Discoverable, not advertised (§4d) — no label */}
           <TerminalGlyph />

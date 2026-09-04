@@ -183,6 +183,20 @@
   }
 }
 
+html,
+body {
+  border-top: 0 !important;
+  margin: 0;
+  padding: 0;
+  outline: none;
+}
+
+/* Sticky header anchor clearance — ensures section titles are never clipped */
+section[id],
+[id].scroll-mt-section {
+  scroll-margin-top: 5.5rem !important; /* 88px = 64px header + 24px breathing space */
+}
+
 body {
   background: var(--color-background);
   color: var(--color-foreground);
@@ -199,4 +213,15 @@ body {
   html {
     @apply font-sans;
   }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(calc(-50% - 1rem)); }
+}
+.animate-marquee {
+  animation: marquee 40s linear infinite;
+}
+.animate-marquee-reverse {
+  animation: marquee 40s linear infinite reverse;
 }

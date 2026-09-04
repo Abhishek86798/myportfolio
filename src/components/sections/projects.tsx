@@ -1,127 +1,181 @@
 "use client";
 
-import { ArrowUpRight, Star } from "lucide-react";
+import { useRef } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowUpRight } from "lucide-react";
 import { GithubIcon } from "@/components/ui/brand-icons";
 import { Section, SectionHeading } from "@/components/ui/section";
-import { Reveal } from "@/components/ui/reveal";
-import { MetricRow } from "@/components/ui/metric-row";
-import { ArchitectureExplorer } from "@/components/projects/architecture-explorer";
-import { useAudienceMode } from "@/components/audience-mode/context";
-import { projects, type Project } from "@/data/projects";
+import { motion, useScroll, useTransform } from "framer-motion";
+import Image from "next/image";
+import { urlForImage } from "@/lib/sanity-image";
 
-export function Projects() {
+export function Projects({ data = [] }: { data?: any[] }) {
   return (
-    <Section id="projects" className="bg-background-subtle">
-      <SectionHeading eyebrow="What I've built">Projects</SectionHeading>
+    <Section id="projects" variant="raised">
+      <SectionHeading id="projects" eyebrow="What I've built">Projects</SectionHeading>
 
-      <div className="grid grid-cols-1 gap-6">
-        {projects.map((project, i) => (
-          <Reveal key={project.slug} delay={i * 0.05}>
-            <ProjectCard project={project} />
-          </Reveal>
+      <div className="relative mt-8 sm:mt-10 flex flex-col gap-10 sm:gap-12 pb-4 sm:pb-6 max-w-4xl mx-auto">
+        {data.map((project: any, i: number) => (
+          <StackingProjectCard
+            key={project.slug || project._id || i}
+            project={project}
+            index={i}
+            total={data.length}
+          />
         ))}
       </div>
     </Section>
   );
 }
 
-function ProjectCard({ project }: { project: Project }) {
-  const { mode } = useAudienceMode();
-  const isEngineer = mode === "engineer";
-  const featured = project.featured;
-  const hasExplorer =
-    !!project.engineer.architectureNodes &&
-    project.engineer.architectureNodes.length > 0;
+function StackingProjectCard({
+  project,
+  index,
+  total,
+}: {
+  project: any;
+  index: number;
+  total: number;
+}) {
+  const router = useRouter();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"],
+  });
+
+  // Scale down from 1 to 0.97 as the next card covers it
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.97]);
+  // Drop brightness to 70% as the next card covers it (depth without blur/glow)
+  const filter = useTransform(scrollYProgress, [0, 1], ["brightness(1)", "brightness(0.7)"]);
+
+  // Resolve screenshot: Sanity image asset OR local asset for AyuSynapse if Sanity asset not uploaded yet
+  const imageUrl = project.image
+    ? urlForImage(project.image)?.url()
+    : project.slug === "ayusynapse"
+    ? "/projects/ayusynapse.jpg"
+    : null;
+
+  const navigateToCaseStudy = () => {
+    router.push(`/projects/${project.slug}`);
+  };
+
+  const repoPath = project.githubUrl
+    ? project.githubUrl.replace(/^https?:\/\/(www\.)?github\.com\//, "")
+    : `Abhishek86798/${project.slug}`;
+
   return (
-    <article
-      className={`group relative rounded-2xl border bg-surface transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/10 active:translate-y-0 ${
-        featured
-          ? "border-accent/40 p-8 md:p-10"
-          : "border-border p-6 hover:border-accent/50 md:p-8"
-      }`}
+    <div
+      ref={containerRef}
+      className="sticky top-24 sm:top-28 w-full"
+      style={{
+        zIndex: index + 10,
+      }}
     >
-      {featured ? (
-        <span className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-accent-subtle px-3 py-1 text-small font-medium text-accent-strong">
-          <Star className="h-3.5 w-3.5" aria-hidden />
-          Featured
-        </span>
-      ) : null}
-
-      <div className="flex items-start justify-between gap-4">
-        <h3
-          className={`font-semibold tracking-tight text-foreground ${
-            featured ? "text-title" : "text-body-lg"
-          }`}
-        >
-          {project.title}
-        </h3>
-        {project.github ? (
-          <a
-            href={project.github}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`${project.title} on GitHub`}
-            className="-m-2 flex h-11 w-11 shrink-0 touch-manipulation items-center justify-center rounded-lg text-foreground-subtle transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-          >
-            <GithubIcon className="h-5 w-5" />
-          </a>
+      <motion.article
+        onClick={navigateToCaseStudy}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            navigateToCaseStudy();
+          }
+        }}
+        tabIndex={0}
+        role="link"
+        aria-label={`Read case study for ${project.title}`}
+        style={{
+          scale: index === total - 1 ? 1 : scale,
+          filter: index === total - 1 ? "none" : filter,
+        }}
+        className="group/card relative cursor-pointer overflow-hidden rounded-3xl border border-border bg-[#0d0f12] p-6 sm:p-8 shadow-2xl transition-all duration-200 hover:border-[#2E323A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/25 before:to-transparent"
+      >
+        {/* Slot 1: Visual preview (collapses completely when no image) */}
+        {imageUrl ? (
+          <div className="relative aspect-[21/9] sm:aspect-[24/9] w-full overflow-hidden rounded-xl border border-border/50 bg-background-subtle">
+            <Image
+              src={imageUrl}
+              alt={project.title}
+              fill
+              className="object-cover object-top"
+            />
+          </div>
         ) : null}
-      </div>
 
-      <p className={`mt-3 max-w-2xl text-foreground-muted ${featured ? "text-body-lg" : "text-body"}`}>
-        {project.recruiter.overview}
-      </p>
+        {/* Slot 2: Title + Repo path + Top-Right Action Pair (GitHub mark and ↗ arrow) */}
+        <div className={`${imageUrl ? "mt-5" : "mt-0"} flex flex-col gap-1.5`}>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h3 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground transition-colors group-hover/card:text-foreground">
+                {project.title}
+              </h3>
+              <p className="font-mono text-xs text-foreground-subtle mt-0.5">
+                {repoPath}
+              </p>
+            </div>
 
-      {project.metrics && project.metrics.length > 0 ? (
-        <div className="mt-6 border-t border-border pt-6">
-          <MetricRow metrics={project.metrics} />
-        </div>
-      ) : null}
+            {/* Top-Right Action Pair */}
+            <div className="flex items-center gap-2 shrink-0">
+              {project.githubUrl ? (
+                <a
+                  href={project.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  aria-label={`${project.title} on GitHub`}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-border text-foreground-subtle transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                >
+                  <GithubIcon className="h-4 w-4" />
+                </a>
+              ) : null}
 
-      <p className="mt-6 max-w-2xl text-small text-foreground-muted">
-        {project.recruiter.impact}
-      </p>
+              {/* Case Study Arrow Affordance - goes emerald on card hover */}
+              <div
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-border text-foreground-subtle transition-colors duration-200 group-hover/card:border-accent group-hover/card:text-accent"
+                aria-hidden
+              >
+                <ArrowUpRight className="h-4 w-4" />
+              </div>
+            </div>
+          </div>
 
-      {/* Engineer mode adds the implementation summary (§4b) */}
-      {isEngineer ? (
-        <p className="mt-3 max-w-2xl text-small text-foreground-muted">
-          {project.engineer.summary}
-        </p>
-      ) : null}
-
-      {/* Explorer is the Engineer-mode "taste" on the homepage (§4a two-layer) */}
-      {isEngineer && hasExplorer ? (
-        <div className="mt-8">
-          <p className="mb-4 flex items-center gap-2 text-small font-medium uppercase tracking-widest text-foreground-subtle">
-            <span className="h-px w-6 bg-accent" aria-hidden />
-            Architecture — click a stage
+          <p className="text-body text-foreground-muted leading-relaxed line-clamp-2">
+            {project.description}
           </p>
-          <ArchitectureExplorer nodes={project.engineer.architectureNodes!} />
         </div>
-      ) : null}
 
-      <div className="mt-8 flex flex-wrap gap-2">
-        {project.techStack.map((tech) => (
-          <span
-            key={tech}
-            className="rounded-full border border-border bg-background-subtle px-3 py-1 text-small text-foreground-muted"
-          >
-            {tech}
-          </span>
-        ))}
-      </div>
+        {/* Slot 3: 3 metrics on a hairline row - left aligned */}
+        {project.metrics && project.metrics.length > 0 ? (
+          <div className="mt-5 grid grid-cols-3 divide-x divide-border/60 border-y border-border/60 py-3.5">
+            {project.metrics.slice(0, 3).map((m: any, idx: number) => (
+              <div
+                key={idx}
+                className="flex flex-col px-4 first:pl-0 last:pr-0 text-left"
+              >
+                <span className="font-mono text-lg sm:text-xl font-semibold tabular-nums text-foreground tracking-tight">
+                  {m.value}
+                </span>
+                <span className="text-xs text-foreground-subtle truncate mt-0.5 font-medium">
+                  {m.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : null}
 
-      {project.github ? (
-        <a
-          href={project.github}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-6 inline-flex touch-manipulation items-center gap-1.5 rounded-md text-small font-medium text-accent transition-colors hover:text-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-        >
-          View on GitHub
-          <ArrowUpRight className="h-4 w-4" aria-hidden />
-        </a>
-      ) : null}
-    </article>
+        {/* Slot 4: 4–6 stack tags */}
+        {project.tags && project.tags.length > 0 ? (
+          <div className="mt-5 flex flex-wrap gap-2">
+            {project.tags.slice(0, 6).map((tech: string) => (
+              <span
+                key={tech}
+                className="rounded-full border border-border/80 bg-background-subtle/80 px-3 py-1 font-mono text-xs text-foreground-muted"
+              >
+                {tech}
+              </span>
+            ))}
+          </div>
+        ) : null}
+      </motion.article>
+    </div>
   );
 }

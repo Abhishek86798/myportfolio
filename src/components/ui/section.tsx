@@ -8,17 +8,26 @@ import { Reveal } from "@/components/ui/reveal";
  */
 export function Section({
   id,
+  variant = "base",
+  hasBorder = true,
   className,
   children,
 }: {
   id?: string;
+  variant?: "base" | "raised";
+  hasBorder?: boolean;
   className?: string;
   children: React.ReactNode;
 }) {
   return (
     <section
       id={id}
-      className={cn("scroll-mt-20 px-6 py-24 md:px-12 md:py-32", className)}
+      className={cn(
+        "scroll-mt-24 md:scroll-mt-28 px-6 py-16 md:px-12 md:py-[88px]",
+        variant === "raised" ? "bg-background-subtle" : "bg-background",
+        hasBorder && "border-t border-black/[0.06] dark:border-white/[0.06]",
+        className
+      )}
     >
       <div className="mx-auto w-full max-w-6xl">{children}</div>
     </section>
@@ -26,26 +35,37 @@ export function Section({
 }
 
 /**
- * Oversized, type-led section heading (PLAN.md §1: "Every section opens with
- * an oversized heading"). Optional eyebrow label above it, emerald.
+ * Oversized, type-led section heading with unified `//` syntax and anchor-on-hover link.
  */
 export function SectionHeading({
+  id,
   eyebrow,
+  className,
   children,
 }: {
+  id?: string;
   eyebrow?: string;
+  className?: string;
   children: React.ReactNode;
 }) {
   return (
-    <Reveal className="mb-12 md:mb-16">
+    <Reveal className={cn("mb-8 sm:mb-10", className)}>
       {eyebrow ? (
-        <p className="mb-3 flex items-center gap-2 text-small font-medium uppercase tracking-widest text-foreground-muted">
-          <span className="h-px w-6 bg-accent" aria-hidden />
-          {eyebrow}
+        <p className="mb-2.5 font-mono text-xs font-semibold uppercase tracking-wider text-accent">
+          {`// ${eyebrow.replace(/^\/\/\s*/, "").toUpperCase()}`}
         </p>
       ) : null}
-      <h2 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl md:text-6xl">
-        {children}
+      <h2 className="group/heading relative text-4xl font-semibold tracking-tight text-foreground sm:text-5xl md:text-6xl flex items-baseline gap-3">
+        {id ? (
+          <a
+            href={`#${id}`}
+            aria-label={`Link to ${id}`}
+            className="font-mono text-xs sm:text-sm font-normal text-foreground-subtle opacity-0 transition-opacity hover:text-accent group-hover/heading:opacity-100 select-none"
+          >
+            #{id}
+          </a>
+        ) : null}
+        <span>{children}</span>
       </h2>
     </Reveal>
   );

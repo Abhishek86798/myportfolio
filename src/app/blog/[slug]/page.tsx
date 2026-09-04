@@ -60,10 +60,10 @@ export default async function BlogPostPage({
 
           {/* Header */}
           <header className="mt-8 max-w-[68ch]">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-small text-foreground-subtle">
+            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 font-mono text-xs text-foreground-subtle">
               <time dateTime={post.date}>{formatDate(post.date)}</time>
               <span aria-hidden>·</span>
-              <span>{post.readingTime} min read</span>
+              <span>{post.readingTime} min</span>
             </div>
             <h1 className="mt-4 text-4xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-5xl">
               {post.title}

@@ -9,10 +9,10 @@ export function BlogCard({ post }: { post: PostMeta }) {
       href={`/blog/${post.slug}`}
       className="group flex touch-manipulation flex-col rounded-2xl border border-border bg-surface p-6 transition-all hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-lg hover:shadow-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background active:translate-y-0 md:p-8"
     >
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-small text-foreground-subtle">
+      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 font-mono text-xs text-foreground-subtle">
         <time dateTime={post.date}>{formatDate(post.date)}</time>
         <span aria-hidden>·</span>
-        <span>{post.readingTime} min read</span>
+        <span>{post.readingTime} min</span>
       </div>
 
       <h3 className="mt-3 flex items-start gap-2 text-title font-semibold tracking-tight text-foreground">

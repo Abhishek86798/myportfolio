@@ -21,14 +21,15 @@ export function EmailAction({
 }) {
   const [copied, setCopied] = useState(false);
 
-  const onClick = () => {
+  const onClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     navigator.clipboard?.writeText(siteConfig.email).then(
       () => {
         setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+        setTimeout(() => setCopied(false), 1500);
       },
       () => {
-        /* clipboard blocked — mailto still fires via the href */
+        window.location.href = `mailto:${siteConfig.email}`;
       }
     );
   };
@@ -41,10 +42,7 @@ export function EmailAction({
       className={className}
     >
       {copied ? (
-        <>
-          <Check className="h-4 w-4 shrink-0 text-accent" aria-hidden />
-          Copied
-        </>
+        <span className="font-mono text-accent font-medium">copied</span>
       ) : (
         children
       )}

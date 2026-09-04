@@ -9,12 +9,12 @@ export function Blog({ posts }: { posts: PostMeta[] }) {
   if (posts.length === 0) return null;
 
   return (
-    <Section id="blog">
+    <Section id="blog" variant="raised">
       <div className="flex items-end justify-between gap-4">
-        <SectionHeading eyebrow="Writing">Blog</SectionHeading>
+        <SectionHeading id="blog" eyebrow="Writing">Blog</SectionHeading>
         <Link
           href="/blog"
-          className="mb-12 hidden shrink-0 items-center gap-1.5 text-small font-medium text-accent transition-colors hover:text-accent-hover sm:inline-flex md:mb-16"
+          className="mb-8 hidden shrink-0 items-center gap-1.5 text-small font-medium text-accent transition-colors hover:text-accent-hover sm:inline-flex sm:mb-10"
         >
           All posts
           <ArrowUpRight className="h-4 w-4" aria-hidden />

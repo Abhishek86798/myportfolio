@@ -6,7 +6,6 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { siteConfig } from "@/data/site.config";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
-import { AudienceModeToggle } from "@/components/audience-mode/toggle";
 import { Spotlight } from "@/components/spotlight/spotlight";
 import type { SpotlightItem } from "@/lib/spotlight";
 import { cn } from "@/lib/utils";
@@ -53,6 +52,7 @@ function useActiveSection(ids: string[]) {
 
 export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
   const active = useActiveSection(NAV_LINKS.map((l) => l.id));
+  const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -61,6 +61,16 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
   // (content-sized) box instead of the viewport. Render outside it instead.
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
+  // Track scroll position to transition header from transparent (at top) to blurred with bottom hairline.
+  useEffect(() => {
+    const onScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Lock body scroll while the mobile menu is open.
   useEffect(() => {
@@ -115,7 +125,14 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
   }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
+    <header
+      className={cn(
+        "sticky top-0 z-50 border-t-0 transition-all duration-200",
+        isScrolled
+          ? "border-b border-border/60 bg-background/80 backdrop-blur-md"
+          : "border-b border-transparent bg-transparent"
+      )}
+    >
       <nav className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6 md:px-12">
         <Link
           href="/"
@@ -134,9 +151,9 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
                   href={link.href}
                   aria-current={active === link.id ? "true" : undefined}
                   className={cn(
-                    "touch-manipulation rounded-lg px-3 py-2 text-small transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                    "relative touch-manipulation rounded-lg px-3 py-2 text-small transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                     active === link.id
-                      ? "text-accent"
+                      ? "text-accent font-medium after:absolute after:bottom-0 after:left-3 after:right-3 after:h-px after:bg-accent"
                       : "text-foreground-muted hover:text-foreground"
                   )}
                 >
@@ -146,12 +163,6 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
             ))}
           </ul>
 
-          {/* Audience Mode — desktop only; mobile lives in the menu panel.
-              Wrapper controls visibility so it wins over the button's own
-              display utility. */}
-          <span className="mr-1 hidden sm:inline-flex">
-            <AudienceModeToggle />
-          </span>
           <Spotlight items={spotlightIndex} />
           <ThemeToggle />
 
@@ -198,14 +209,6 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
                   </button>
                 </div>
 
-                {/* Audience Mode — lives in the menu on mobile (§4b) */}
-                <div className="mt-6">
-                  <p className="mb-2 text-small font-medium uppercase tracking-widest text-foreground-subtle">
-                    Viewing as
-                  </p>
-                  <AudienceModeToggle full />
-                </div>
-
                 <ul className="mt-6 flex flex-col gap-1">
                   {NAV_LINKS.map((link) => (
                     <li key={link.href}>
@@ -216,7 +219,7 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
                         className={cn(
                           "flex touch-manipulation items-center rounded-lg px-4 py-3 text-body transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                           active === link.id
-                            ? "bg-accent-subtle text-accent-strong-strong"
+                            ? "bg-accent-subtle text-accent-strong font-medium"
                             : "text-foreground-muted hover:bg-background-subtle hover:text-foreground"
                         )}
                       >

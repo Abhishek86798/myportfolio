@@ -1,0 +1,209 @@
+\documentclass[letterpaper,11pt]{article}
+
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{marvosym}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\usepackage{fontawesome5}
+\usepackage{multicol}
+\setlength{\multicolsep}{-3.0pt}
+\setlength{\columnsep}{-1pt}
+\input{glyphtounicode}
+
+%----------FONT OPTIONS----------
+% Use Arial-like font (Helvetica)
+\usepackage[scaled]{helvet}
+\renewcommand\familydefault{\sfdefault} % Set sans-serif as default
+\usepackage[T1]{fontenc} % Ensure proper font encoding
+
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Adjust margins
+\addtolength{\oddsidemargin}{-0.6in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1.19in}
+\addtolength{\topmargin}{-.7in}
+\addtolength{\textheight}{1.4in}
+
+\urlstyle{same}
+
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+% Sections formatting
+\titleformat{\section}{
+  \vspace{-4pt}\scshape\raggedright\large\bfseries
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+
+% Ensure that generate pdf is machine readable/ATS parsable
+\pdfgentounicode=1
+
+%-------------------------
+% Custom commands
+\newcommand{\resumeItem}[1]{
+  \item\small{
+    {#1 \vspace{-2pt}} % Reduced spacing for compactness
+  }
+}
+
+\newcommand{\classesList}[4]{
+    \item\small{
+        {#1 #2 #3 #4 \vspace{-4pt}} % Reduced spacing
+  }
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-4pt}\item % Reduced spacing here
+    \begin{tabular*}{1.0\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & \textbf{\small #2} \\
+      \textit{\small#3} & \textit{\small #4} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSubSubheading}[2]{
+    \item
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \textit{\small#1} & \textit{\small #2} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeProjectHeading}[2]{
+    \item
+    \begin{tabular*}{1.001\textwidth}{l@{\extracolsep{\fill}}r}
+      \small#1 & \textbf{\small #2}\\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSubItem}[1]{\resumeItem{#1}\vspace{-4pt}} % Reduced spacing
+
+\renewcommand\labelitemi{$\vcenter{\hbox{\tiny$\bullet$}}$}
+\renewcommand\labelitemii{$\vcenter{\hbox{\tiny$\bullet$}}$}
+
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.0in, label={}]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+
+%-------------------------------------------
+%%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+%----------HEADING----------
+\begin{center}
+    {\Huge \scshape Abhishek Kokadwar} \\ \vspace{1pt}
+    \small \raisebox{-0.1\height}\faPhone\ +91-9307229712 ~ \textcolor{NavyBlue}{\href{mailto:abhishekkokadwar2005@gmail.com}{\raisebox{-0.2\height}\faEnvelope\  \underline{abhishekkokadwar2005@gmail.com}}} ~
+    \textcolor{NavyBlue}{\href{https://www.linkedin.com/in/abhishek-kokadwar/}{\raisebox{-0.2\height}\faLinkedin\ \underline{abhishek-kokadwar}}}  ~
+    \textcolor{NavyBlue}{\href{https://github.com/Abhishek86798}{\raisebox{-0.2\height}\faGithub\ \underline{GitHub}}}
+    \\ \vspace{2pt}
+     \textcolor{NavyBlue}{\href{https://abhikokadwar.vercel.app/}{\raisebox{-0.2\height}\faGlobe\ \underline{Portfolio}}} ~
+     \textcolor{NavyBlue}{\href{https://codolio.com/profile/abhishek_1005}{\raisebox{-0.2\height}\faCode\ \underline{Codolio}}} ~
+     \textcolor{NavyBlue}{\href{https://medium.com/@abhikokadwar2}{\raisebox{-0.2\height}\faMedium\ \underline{Medium}}}
+    \vspace{-8pt}
+\end{center}
+\vspace{1pt}
+
+%-----------EDUCATION-----------
+\section{Education}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+      {Indian Institute of Information Technology and Management (IIITM) Gwalior}{Expected 2028}
+      {Integrated BTech(IT)+MBA, 5-Year Dual Degree $|$ CGPA: 7.5/10}{Madhya Pradesh, India}
+  \resumeSubHeadingListEnd
+
+%-----------EXPERIENCE-----------
+\section{Work Experience}
+\vspace{3pt}
+
+\resumeSubHeadingListStart
+
+\resumeSubheading
+    {Software Developer Intern}{Jul 2026 -- Aug 2026}
+    {HiGigAi $|$ \textcolor{NavyBlue}{Next.js, Sanity CMS, Cloudinary, Vercel}}{Remote}
+    \resumeItemListStart
+        \resumeItem{Shipped \textcolor{NavyBlue}{\href{https://www.tridentpublicschool.com/}{\underline{tridentpublicschool.com}}} in a \textbf{1-month} engagement: \textbf{5 branch sites on 5 subdomains} from one Next.js codebase, cutting future branch onboarding to content entry only.}
+        \resumeItem{Designed \textbf{25+ Sanity schemas}, scoping Studio via Structure Builder so \textbf{5 branch admins} manage \textbf{15+ page types} independently with zero developer involvement.}
+        \resumeItem{Cut recurring infra cost to \textbf{\$0/month} by replacing a planned Supabase tier with Sanity-native forms and \textbf{Cloudinary} media, using \textbf{ISR} + webhooks for redeploy-free publishing.}
+    \resumeItemListEnd
+
+\vspace{3pt}
+
+    \resumeSubheading
+  {Software Developer Intern}{Jul 2025 -- Sep 2025}
+  {Trionix Technologies $|$ \textcolor{NavyBlue}{Next.js, PostgreSQL, Firebase, Row-Level Security}}{Remote}
+  \resumeItemListStart
+      \resumeItem{Architected the \textbf{VyaparPragati} admin platform across \textbf{6 backend modules} serving \textbf{500+ users}, adding real-time \textbf{Firestore} messaging in place of manual polling.}
+      \resumeItem{Designed a normalized \textbf{PostgreSQL} schema with \textbf{Row-Level Security}; eliminated \textbf{N+1 queries}, \textbf{halving DB round-trips} on SSR routes.}
+  \resumeItemListEnd
+  \resumeSubHeadingListEnd
+    \vspace{-8pt}
+
+%-----------PROJECTS-----------
+\section{Projects}
+\vspace{-5pt}
+\resumeSubHeadingListStart
+
+\resumeProjectHeading
+{\textbf{\textcolor{NavyBlue}{\href{https://github.com/Abhishek86798/MCP_Zero-Trust_Gateway_BTP}{MCP Zero-Trust Security Gateway}}} $|$ \emph{Python, FastAPI, Docker, seccomp-bpf, Landlock} $|$ \textcolor{NavyBlue}{\href{https://pypi.org/project/mcp-ztgateway/}{PyPI: mcp-ztgateway}}}{}
+\vspace{-10pt}
+\resumeItemListStart
+     \resumeItem{Built a \textbf{declare--verify--confine} gateway for \textbf{MCP} tool servers: \textbf{strace} verified capability grants compiled into per tool \textbf{seccomp-bpf} filters, denying anything undeclared.}
+\resumeItem{Added \textbf{provenance gating} and per-call \textbf{manifest re-attestation} (closing \textbf{CVE-2025-54136}); scored \textbf{84.6\%} runtime defence, \textbf{100\%} containment, \textbf{87.8\%} on \textbf{MCPTox} across {\href{https://drive.google.com/drive/folders/1UxaBiMxdcX8KH6rdeaSiJ0nu2eWcyXNQ?usp=sharing}{\textbf{583 rows}}}; shipped to \textbf{PyPI}.}
+\resumeItemListEnd
+\vspace{-15pt}
+
+    \resumeProjectHeading
+        {\textbf{\textcolor{NavyBlue}{\href{https://github.com/Abhishek86798/CIDRA}{CIDRA -- CI Debugging \& Repair Agent}}} $|$ \emph{Python, LangGraph, Claude API, Docker}}{}
+        \vspace{-10pt}
+        \resumeItemListStart
+            \resumeItem{Built a \textbf{LangGraph} + \textbf{Claude} agent that diagnoses \textbf{GitHub Actions} CI failures and verifies fixes in a sandboxed \textbf{Docker} loop, reaching \textbf{100\%} Tier-1/2 diagnosis accuracy across \textbf{53+ tests}.}
+        \resumeItemListEnd
+\resumeSubHeadingListEnd
+
+%-----------PROGRAMMING SKILLS-----------
+\section{Technical Skills}
+ \begin{itemize}[leftmargin=0.15in, label={}]
+    \small{\item{
+     \textbf{Languages: }{C++, Python, JavaScript, TypeScript, SQL} \\
+     \textbf{Web Development: }{Next.js, Node.js, FastAPI, REST API, Sanity CMS} \\
+     \textbf{AI/ML: }{RAG, LangChain, LangGraph, HuggingFace Transformers} \\
+     \textbf{Databases and Tools: }{PostgreSQL, Firebase, SQLite Git, Docker, Linux, Figma} \\
+     \textbf{Cloud Exposure: }{Vercel, Cloudinary, AWS (fundamentals)} \\
+     \textbf{Relevant Coursework: }{OOP, OS, CN, DBMS, DSA} \\
+    }}
+ \end{itemize}
+
+%-----------ACHIEVEMENTS---------------
+\section{Achievements}
+    \resumeSubHeadingListStart
+        \item[]
+        \resumeItemListStart
+            \resumeItem{Solved {\textbf{1,000+ DSA problems}} across {\href{https://www.naukri.com/code360/profile/1d0eab26-a66e-4d90-99ed-46328d444eab}{\textbf{Code360}}} (2x Monthly Topper), {\href{https://leetcode.com/u/abhiii1005_/}{\textbf{LeetCode}}} (Top 17\%) and {\href{https://www.geeksforgeeks.org/profile/abhi_iiitm}{\textbf{GeeksforGeeks}}}; {\textbf{Top 5\%}} in {\href{https://gridlock2point0.hackerearth.com/}{\textbf{Flipkart Gridlock Hackathon 2.0}}}; {\textbf{Top 2\%}} in {\textbf{JEE Mains 2023}} (1.1M+ candidates).}
+            \resumeItem{Built a {\href{https://verifiable-parent-consent.netlify.app/}{\textbf{DPDP Act compliance demo}}} for a product case study; designed the {\href{https://www.figma.com/proto/uxLpOhTw26VaPZOCj8IUlK/CampusSafe?node-id=0-1&t=M8kEMZIFKWhZlpuK-1}{\textbf{CampusSafe}}} SOS app UI/UX in Figma.}
+            \resumeItem{Published an inference model on {\href{https://huggingface.co/abhishek1005}{\textbf{HuggingFace Hub}}}; active {\textbf{GSSoC}} contributor; Runner-Up, {\textbf{Blazing Wheels}}, Infotsav.}
+            \resumeItem{Merged a {\href{https://github.com/kubeflow/trainer/pull/3960}{\textbf{pull request}}} into {\textbf{kubeflow/trainer}}, a CNCF-hosted open-source project.}
+        \resumeItemListEnd
+    \resumeSubHeadingListEnd
+
+%-----------POSITION OF RESPONSIBILITY---------------
+\section{Position of Responsibility}
+    \resumeSubHeadingListStart
+        \item[]
+        \resumeItemListStart
+            \resumeItem{{\textbf{Tech Lead, Hindi Samiti Club}} \& Robotics Team lead, Infotsav; {\textbf{Internshala Student Partner}} and member, {\textbf{Student Gyan Movement}}, IIITM Gwalior.}
+        \resumeItemListEnd
+    \resumeSubHeadingListEnd
+
+\end{document}

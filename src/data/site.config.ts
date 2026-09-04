@@ -1,12 +1,12 @@
 export const siteConfig = {
   name: "Abhishek Kokadwar",
-  role: "Software Engineer",
+  role: "Backend & AI Systems Engineer",
   tagline:
-    "B.Tech IT + MBA student at IIITM Gwalior, building AI systems, backend infrastructure, and security tooling.",
+    "I build high-performance backend infrastructure, secure AI agents, and scalable web applications. Currently a pre-final year Dual Degree student at IIITM Gwalior.",
   location: "Gwalior, Madhya Pradesh, India",
   status: {
     label: "Currently Building",
-    project: "MCP Zero-Trust Security Gateway",
+    project: "Zero-Trust Security Gateway",
   },
   // Static dashboard values — "set at launch, refresh occasionally" (§5, §6).
   // DSA counts are now live via Codolio (see lib/data/codolio.ts).
@@ -24,9 +24,33 @@ export const siteConfig = {
     resume: "/resume.pdf",
   },
   about: [
-    { icon: "map-pin", label: "IIITM Gwalior — B.Tech IT + MBA" },
-    { icon: "code", label: "AI + Backend + Systems" },
-    { icon: "shield", label: "Interested in AI Security" },
-    { icon: "rocket", label: "Looking for SWE Internships" },
+    { 
+      specLabel: "Academics",
+      icon: "graduation", 
+      label: "B.Tech IT + MBA @ IIITM Gwalior",
+      meta: "IIITM Gwalior · 2022–2027",
+      description: "Pre-final year student in a 5-year integrated dual degree program. Blending deep technical systems engineering with business strategy, focusing on distributed systems and software architecture.",
+    },
+    { 
+      specLabel: "Discipline",
+      icon: "terminal", 
+      label: "Backend & AI Systems Engineering",
+      meta: "FastAPI · Next.js · PostgreSQL · ChromaDB",
+      description: "Specialized in scalable web applications, microservices, and production RAG pipelines. Building high-throughput APIs with Python, C++, TypeScript, and robust database indexing.",
+    },
+    { 
+      specLabel: "Security",
+      icon: "shield", 
+      label: "AI Security Tooling & Sandboxing",
+      meta: "Zero-Trust · Linux Sandboxing",
+      description: "Architecting least-privilege execution environments and security proxies for LLM tools. Exploring seccomp, strace system call tracing, and deterministic authorization gateways.",
+    },
+    { 
+      specLabel: "Availability",
+      icon: "rocket", 
+      label: "Software Engineering Internships",
+      meta: "Open for Summer & Fall 2025/2026",
+      description: "Active open-source contributor in the cloud native ecosystem (CNCF/Meshery). Solved 852 DSA problems (393 Medium, 55 Hard) across LeetCode, GeeksforGeeks, and Code360.",
+    },
   ],
 } as const;

@@ -1,4 +1,4 @@
-import { ArrowUpRight, BookOpen, Code2, GitCommitHorizontal, Star } from "lucide-react";
+import { ArrowUpRight, GitCommitHorizontal } from "lucide-react";
 import { Section, SectionHeading } from "@/components/ui/section";
 import { Reveal } from "@/components/ui/reveal";
 import { Heatmap } from "@/components/dashboard/heatmap";
@@ -11,13 +11,12 @@ function relativeTime(iso: string): string {
   const days = Math.floor((Date.now() - then) / 86_400_000);
   if (days <= 0) return "today";
   if (days === 1) return "yesterday";
-  if (days < 7) return `${days} days ago`;
+  if (days < 7) return `${days}d ago`;
   if (days < 30) return `${Math.floor(days / 7)}w ago`;
   return `${Math.floor(days / 30)}mo ago`;
 }
 
-// Shared card chrome — dashboard density (p-5), consistent across the bento grid.
-const CARD = "rounded-2xl border border-border bg-surface p-5";
+const CARD = "rounded-2xl border border-border bg-surface p-5 sm:p-6 shadow-sm";
 
 export function Dashboard({
   stats,
@@ -26,224 +25,214 @@ export function Dashboard({
   stats: GitHubStats;
   coding: CodingStats;
 }) {
-  const { contributions, recentCommits, topRepos, languages, profile } = stats;
+  const { contributions, recentCommits } = stats;
 
-  const hasNoData =
-    !contributions && recentCommits.length === 0 && topRepos.length === 0;
+  const totalDsa = coding.medium + coding.hard + coding.easy;
+  const mediumPct = totalDsa > 0 ? Math.round((coding.medium / totalDsa) * 100) : 54;
+  const hardPct = totalDsa > 0 ? Math.round((coding.hard / totalDsa) * 100) : 8;
+  const easyPct = totalDsa > 0 ? 100 - mediumPct - hardPct : 38;
 
   return (
-    <Section id="dashboard">
-      <SectionHeading eyebrow="What I'm up to">Live Dashboard</SectionHeading>
+    <Section id="dashboard" variant="base">
+      <SectionHeading id="dashboard" eyebrow="What I'm up to">Activity & Depth</SectionHeading>
 
-      {/* Stat tiles */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatTile
-          value={profile ? String(profile.publicRepos) : "—"}
-          label="Public repos"
+      {/* Optimal Shape: Heatmap, full width */}
+      <Reveal className={CARD}>
+        <Heatmap
+          data={contributions}
+          updatedAt={stats.updatedAt}
         />
-        <StatTile
-          value={contributions ? contributions.total.toLocaleString() : "—"}
-          label="Contributions this year"
-        />
-        <StatTile
-          value={coding.isLive ? String(coding.total) : `${coding.total}+`}
-          label="DSA problems solved"
-        />
-        <StatTile
-          value={
-            <span className="flex items-center gap-2 text-body-lg">
-              <BookOpen className="h-5 w-5 shrink-0 text-accent" aria-hidden />
-              <span className="line-clamp-2 font-medium">
-                {siteConfig.dashboard.reading}
-              </span>
-            </span>
-          }
-          label="Currently reading"
-        />
-      </div>
+      </Reveal>
 
-      {/* Heatmap — full width (needs the horizontal room for 52 weeks) */}
-      {contributions ? (
-        <Reveal className={`mt-4 ${CARD}`}>
-          <Heatmap data={contributions} />
-        </Reveal>
-      ) : null}
+      {/* Optimal Shape: Two columns below */}
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2 items-stretch">
+        {/* Left Column: Recent Commits (4, with real engineering depth) */}
+        <Reveal className={`${CARD} flex flex-col justify-between`}>
+          <div>
+            <div className="flex items-center justify-between border-b border-border/50 pb-3">
+              <h3 className="flex items-center gap-2 text-body-lg font-semibold text-foreground">
+                <GitCommitHorizontal className="h-5 w-5 text-accent" aria-hidden />
+                Recent Commits
+              </h3>
+              <a
+                href={siteConfig.links.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-1 font-mono text-xs text-foreground-subtle transition-colors hover:text-accent"
+              >
+                <span>github.com/Abhishek86798</span>
+                <ArrowUpRight className="h-3.5 w-3.5 opacity-70 group-hover:opacity-100" aria-hidden />
+              </a>
+            </div>
 
-      {/* Bento row: commits (left, tall) | repos + coding stacked (right) */}
-      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-        {/* Recent commits */}
-        {recentCommits.length > 0 ? (
-          <Reveal className={CARD}>
-            <h3 className="flex items-center gap-2 text-body-lg font-semibold text-foreground">
-              <GitCommitHorizontal className="h-5 w-5 text-accent" aria-hidden />
-              Recent commits
-            </h3>
-            <ul className="mt-3 flex flex-col gap-2">
+            <ul className="mt-4 flex flex-col divide-y divide-border/40">
               {recentCommits.slice(0, 4).map((c) => (
-                <li key={c.sha}>
+                <li key={c.sha} className="py-3.5 first:pt-0 last:pb-0">
                   <a
                     href={c.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex min-h-11 touch-manipulation flex-col justify-center rounded-lg px-2 py-1.5 -mx-2 transition-colors hover:bg-background-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    className="group block transition-colors"
                   >
-                    <p className="font-mono text-small text-foreground transition-colors group-hover:text-accent">
+                    <p className="font-mono text-small font-medium text-foreground transition-colors group-hover:text-accent">
                       {c.message}
                     </p>
                     {c.note ? (
-                      <p className="mt-1 text-small text-foreground-muted">
+                      <p className="mt-1 text-small text-foreground-muted leading-relaxed">
                         {c.note}
                       </p>
                     ) : null}
-                    <p className="mt-1 text-small text-foreground-subtle">
-                      {c.repo.split("/")[1] ?? c.repo} · {relativeTime(c.date)}
-                    </p>
+                    <div className="mt-2 flex items-center gap-2 font-mono text-xs text-foreground-subtle">
+                      <span className="rounded bg-background-subtle px-1.5 py-0.5 border border-border/60 text-foreground-muted">
+                        {c.repo.split("/").pop()}
+                      </span>
+                      <span>·</span>
+                      <span>{relativeTime(c.date)}</span>
+                      <span className="opacity-0 transition-opacity group-hover:opacity-100 text-accent">
+                        ↗
+                      </span>
+                    </div>
                   </a>
                 </li>
               ))}
             </ul>
-          </Reveal>
-        ) : null}
+          </div>
+        </Reveal>
 
-        {/* Right column — repos + coding stacked */}
-        <div className="flex flex-col gap-4">
-          {/* Top repos */}
-          {topRepos.length > 0 ? (
-            <Reveal className={CARD}>
-              <h3 className="text-body-lg font-semibold text-foreground">
-                Top repositories
-              </h3>
-              <ul className="mt-3 flex flex-col gap-3">
-                {topRepos.map((r) => (
-                  <li key={r.name}>
-                    <a
-                      href={r.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group flex touch-manipulation items-start justify-between gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                    >
-                      <span className="min-w-0">
-                        <span className="flex items-center gap-1 text-small font-medium text-foreground transition-colors group-hover:text-accent">
-                          {r.name}
-                          <ArrowUpRight className="h-3.5 w-3.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-100" aria-hidden />
-                        </span>
-                        {r.description ? (
-                          <span className="mt-0.5 block truncate text-small text-foreground-subtle">
-                            {r.description}
-                          </span>
-                        ) : null}
-                      </span>
-                      <span className="flex shrink-0 items-center gap-3 text-small text-foreground-subtle">
-                        {r.language ? <span>{r.language}</span> : null}
-                        {r.stars > 0 ? (
-                          <span className="flex items-center gap-1">
-                            <Star className="h-3.5 w-3.5" aria-hidden />
-                            {r.stars}
-                          </span>
-                        ) : null}
-                      </span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </Reveal>
-          ) : null}
-
-          {/* Coding practice (Codolio) — languages folded in as a footer strip */}
-          {coding.platforms.length > 0 ? (
-            <Reveal className={CARD}>
-              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                <h3 className="flex items-center gap-2 text-body-lg font-semibold text-foreground">
-                  <Code2 className="h-5 w-5 text-accent" aria-hidden />
-                  Coding practice
-                </h3>
-                <a
-                  href={coding.profileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex touch-manipulation items-center gap-1 rounded-md text-small font-medium text-accent transition-colors hover:text-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                >
-                  View on Codolio
-                  <ArrowUpRight className="h-4 w-4" aria-hidden />
-                </a>
-              </div>
-
-              <div className="mt-4 grid grid-cols-3 gap-4">
-                {coding.platforms.map((p) => (
-                  <div key={p.name}>
-                    <div className="text-body-lg font-semibold tabular-nums text-foreground">
-                      {p.solved}
-                    </div>
-                    <div className="mt-0.5 truncate text-small text-foreground-muted">
-                      {p.name}
-                    </div>
-                    <div className="mt-2 h-1 overflow-hidden rounded-full bg-border">
-                      <div
-                        className="h-full rounded-full bg-accent"
-                        style={{
-                          width: `${Math.round((p.solved / coding.total) * 100)}%`,
-                        }}
-                      />
-                    </div>
+        {/* Right Column: Difficulty Mix + 1640 Rating */}
+        <Reveal className={`${CARD} flex flex-col justify-between`}>
+          <div>
+            {/* 1640 Rating Block */}
+            <div className="border-b border-border/50 pb-5">
+              <div className="flex items-baseline justify-between gap-4">
+                <div>
+                  <div className="font-mono text-4xl sm:text-5xl font-semibold tracking-tight text-foreground">
+                    {coding.contestRating || 1640}
                   </div>
-                ))}
+                  <div className="mt-1 text-body font-medium text-foreground-muted">
+                    Contest Rating
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="rounded-full border border-accent/30 bg-accent/10 px-3 py-1 font-mono text-xs font-medium text-accent">
+                    Top ~15%
+                  </span>
+                  <div className="mt-1.5 font-mono text-[11px] text-foreground-subtle">
+                    {coding.activeDays} active days · {coding.longestStreak} streak
+                  </div>
+                </div>
+              </div>
+              <p className="mt-2 font-mono text-xs text-foreground-subtle">
+                LeetCode rating · {coding.contestsCount || 29} contests attended
+              </p>
+            </div>
+
+            {/* Difficulty Mix Block */}
+            <div className="mt-5">
+              <div className="flex items-baseline justify-between">
+                <div className="flex items-baseline gap-2">
+                  <h4 className="text-body font-semibold text-foreground">
+                    Problem Depth
+                  </h4>
+                  <span className="font-mono text-[11px] text-foreground-subtle">
+                    (as of {coding.capturedAt || "Sep 2026"})
+                  </span>
+                </div>
+                <span className="font-mono text-xs text-foreground-muted">
+                  {coding.total} total solved
+                </span>
               </div>
 
-              {/* Languages folded in as a quiet footer strip */}
-              {languages.length > 0 ? (
-                <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border pt-3 text-small">
-                  <span className="text-foreground-subtle">Mostly:</span>
-                  {languages.slice(0, 4).map((l) => (
-                    <span key={l.name} className="flex items-baseline gap-1">
-                      <span className="font-medium text-foreground">
-                        {l.name}
-                      </span>
-                      <span className="text-foreground-subtle">{l.percent}%</span>
-                    </span>
-                  ))}
+              {/* High-signal metric tiles: 393 Medium / 55 Hard */}
+              <div className="mt-4 grid grid-cols-3 gap-3">
+                <div className="rounded-lg border border-accent/40 bg-accent/5 p-3">
+                  <div className="font-mono text-2xl font-semibold text-accent">
+                    {coding.medium}
+                  </div>
+                  <div className="mt-0.5 text-xs font-medium text-foreground">
+                    Medium
+                  </div>
+                  <div className="mt-1 text-[11px] text-foreground-subtle">
+                    Core signal
+                  </div>
                 </div>
-              ) : null}
-            </Reveal>
-          ) : null}
-        </div>
-      </div>
 
-      {/* Fallback when no data at all (token missing + API down) */}
-      {hasNoData ? (
-        <p className={`mt-4 ${CARD} text-body text-foreground-muted`}>
-          Live stats are resting — check back shortly, or find me on{" "}
-          <a
-            href={siteConfig.links.github}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-accent hover:text-accent-hover"
-          >
-            GitHub
-          </a>
-          .
-        </p>
-      ) : null}
+                <div className="rounded-lg border border-border/80 bg-background-subtle p-3">
+                  <div className="font-mono text-2xl font-semibold text-foreground">
+                    {coding.hard}
+                  </div>
+                  <div className="mt-0.5 text-xs font-medium text-foreground">
+                    Hard
+                  </div>
+                  <div className="mt-1 text-[11px] text-foreground-subtle">
+                    Advanced
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-border/80 bg-background-subtle p-3">
+                  <div className="font-mono text-2xl font-semibold text-foreground-muted">
+                    {coding.easy}
+                  </div>
+                  <div className="mt-0.5 text-xs font-medium text-foreground-muted">
+                    Easy
+                  </div>
+                  <div className="mt-1 text-[11px] text-foreground-subtle">
+                    Foundational
+                  </div>
+                </div>
+              </div>
+
+              {/* Fast-reading Stacked Horizontal Bar */}
+              <div className="mt-5">
+                <div className="h-2 w-full overflow-hidden rounded-full bg-border/50 flex">
+                  <div
+                    style={{ width: `${mediumPct}%` }}
+                    className="h-full bg-accent"
+                    title={`${coding.medium} Medium (${mediumPct}%)`}
+                  />
+                  <div
+                    style={{ width: `${hardPct}%` }}
+                    className="h-full bg-emerald-300 dark:bg-emerald-200"
+                    title={`${coding.hard} Hard (${hardPct}%)`}
+                  />
+                  <div
+                    style={{ width: `${easyPct}%` }}
+                    className="h-full bg-border"
+                    title={`${coding.easy} Easy (${easyPct}%)`}
+                  />
+                </div>
+                <div className="mt-2 flex items-center justify-between text-[11px] font-mono text-foreground-subtle">
+                  <span className="flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                    Medium ({mediumPct}%)
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 dark:bg-emerald-200" />
+                    Hard ({hardPct}%)
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-border" />
+                    Easy ({easyPct}%)
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quiet verified profile link */}
+          <div className="mt-6 border-t border-border/50 pt-3">
+            <a
+              href={coding.profileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex items-center gap-1.5 font-mono text-xs text-foreground-muted transition-colors hover:text-accent"
+            >
+              <span>Verified across LeetCode & Codolio</span>
+              <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden />
+            </a>
+          </div>
+        </Reveal>
+      </div>
     </Section>
-  );
-}
-
-function StatTile({
-  value,
-  label,
-  labelClass,
-}: {
-  value: React.ReactNode;
-  label: string;
-  labelClass?: string;
-}) {
-  return (
-    <Reveal className={`flex flex-col justify-between ${CARD}`}>
-      <div className="text-title font-semibold tracking-tight tabular-nums text-foreground">
-        {value}
-      </div>
-      <div className={`mt-2 text-small text-foreground-muted ${labelClass ?? ""}`}>
-        {label}
-      </div>
-    </Reveal>
   );
 }

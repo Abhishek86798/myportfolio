@@ -1,4 +1,4 @@
-import { MapPin, Code2, ShieldCheck, Rocket, type LucideIcon } from "lucide-react";
+import { MapPin, Code2, ShieldCheck, Rocket, GraduationCap, Trophy, Terminal, Brain, type LucideIcon } from "lucide-react";
 import { Section, SectionHeading } from "@/components/ui/section";
 import { Reveal } from "@/components/ui/reveal";
 import { siteConfig } from "@/data/site.config";
@@ -8,28 +8,58 @@ const ICONS: Record<string, LucideIcon> = {
   code: Code2,
   shield: ShieldCheck,
   rocket: Rocket,
+  graduation: GraduationCap,
+  trophy: Trophy,
+  terminal: Terminal,
+  brain: Brain,
 };
 
 export function About() {
   return (
-    <Section id="about">
-      <SectionHeading eyebrow="Who I am">About</SectionHeading>
+    <Section id="about" variant="raised">
+      <SectionHeading id="about" eyebrow="Who I am">About</SectionHeading>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="border-y border-black/[0.06] dark:border-white/[0.06] divide-y divide-black/[0.06] dark:divide-white/[0.06]">
         {siteConfig.about.map((item, i) => {
           const Icon = ICONS[item.icon];
           return (
-            <Reveal
-              key={item.label}
-              delay={i * 0.05}
-              className="group flex items-center gap-4 rounded-2xl border border-border bg-surface px-6 py-5 text-body text-foreground transition-colors hover:border-accent/50"
-            >
-              {Icon ? (
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-subtle text-accent-strong-strong transition-colors">
-                  <Icon className="h-5 w-5" aria-hidden />
-                </span>
-              ) : null}
-              <span className="font-medium">{item.label}</span>
+            <Reveal key={item.specLabel} delay={i * 0.05}>
+              <div className="grid grid-cols-1 md:grid-cols-12 py-5 sm:py-6 gap-3 md:gap-8 items-baseline transition-colors hover:bg-surface/30 px-2 sm:px-3 -mx-2 sm:-mx-3 rounded-lg">
+                {/* Left Column: Spec Label rail */}
+                <div className="md:col-span-4 flex items-center gap-2.5">
+                  <span className="font-mono text-xs font-semibold text-accent">
+                    0{i + 1}.
+                  </span>
+                  <span className="font-mono text-small font-medium uppercase tracking-wider text-foreground-subtle">
+                    {item.specLabel}
+                  </span>
+                </div>
+
+                {/* Right Column: Spec content */}
+                <div className="md:col-span-8 flex flex-col gap-2">
+                  <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+                    <div className="flex items-center gap-2.5">
+                      {Icon ? (
+                        <Icon className="h-[18px] w-[18px] text-accent shrink-0" aria-hidden />
+                      ) : null}
+                      <h3 className="text-body font-semibold tracking-tight text-foreground">
+                        {item.label}
+                      </h3>
+                    </div>
+                    {item.meta ? (
+                      <span className="font-mono text-xs text-foreground-subtle">
+                        {item.meta}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  {item.description ? (
+                    <p className="text-small text-foreground-muted leading-relaxed">
+                      {item.description}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
             </Reveal>
           );
         })}

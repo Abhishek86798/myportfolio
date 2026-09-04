@@ -3,97 +3,166 @@
 import { ArrowUpRight } from "lucide-react";
 import { Section, SectionHeading } from "@/components/ui/section";
 import { Reveal } from "@/components/ui/reveal";
-import { MetricRow } from "@/components/ui/metric-row";
 import { useAudienceMode } from "@/components/audience-mode/context";
-import { experience } from "@/data/experience";
 
-export function Experience() {
+const FALLBACK_METRICS: Record<string, { value: string; label: string }[]> = {
+  HiGigAi: [
+    { value: "$0/mo", label: "recurring infra" },
+    { value: "5", label: "branch subdomains" },
+    { value: "25+", label: "Sanity schemas" },
+  ],
+  "Trionix Technologies": [
+    { value: "500+", label: "users served" },
+    { value: "6", label: "backend modules" },
+    { value: "50%", label: "fewer DB round-trips" },
+  ],
+};
+
+export function Experience({ data = [] }: { data?: any[] }) {
   const { mode } = useAudienceMode();
   const isEngineer = mode === "engineer";
+
+  // Map Sanity schema fields to component expectations
+  const normalizedData = data.map((job: any) => {
+    const org = job.company || job.org || "Unknown";
+    return {
+      ...job,
+      org,
+      period: job.duration || job.period,
+      stack: job.tags || job.stack || [],
+      highlights:
+        job.highlights ||
+        (job.description
+          ? job.description.map((b: any) => b.children?.[0]?.text).filter(Boolean)
+          : []),
+      orgUrl: job.orgUrl || (org === "HiGigAi" ? "https://www.tridentpublicschool.com/" : "https://trionixtechnologies.in/"),
+      location: job.location || "Remote",
+      metrics: (job.metrics && job.metrics.length > 0) ? job.metrics : (FALLBACK_METRICS[org] || []),
+      engineerHighlights: job.engineerHighlights || [],
+    };
+  });
+
+  // Reverse-chronological order: newest (order 1 / HiGigAi) first
+  const sortedData = [...normalizedData].sort((a: any, b: any) => {
+    if (a.order !== undefined && b.order !== undefined) return a.order - b.order;
+    return 0;
+  });
+
   return (
-    <Section id="experience" className="bg-background-subtle">
-      <SectionHeading eyebrow="Where I've worked">Experience</SectionHeading>
+    <Section id="experience" variant="base">
+      <SectionHeading id="experience" eyebrow="Where I've worked">Experience</SectionHeading>
 
-      <div className="flex flex-col gap-6">
-        {experience.map((job, i) => (
-          <Reveal key={`${job.org}-${job.period}`} delay={i * 0.05}>
-          <div className="group rounded-2xl border border-border bg-surface p-6 transition-all hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-lg hover:shadow-accent/10 active:translate-y-0 md:p-8">
-            <div className="flex items-start gap-4">
-              {/* Company monogram — visual anchor per card */}
-              <span
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent-subtle text-body-lg font-semibold text-accent-strong"
-                aria-hidden
+      <div className="flex flex-col gap-6 max-w-4xl mx-auto">
+        {sortedData.map((job: any, i: number) => {
+          const isLatest = i === 0;
+          const metrics = job.metrics || [];
+
+          return (
+            <Reveal key={job._id || `${job.org}-${job.period}-${i}`} delay={i * 0.05}>
+              <article
+                className={`relative overflow-hidden rounded-2xl transition-all ${
+                  isLatest
+                    ? "border border-border/90 bg-[#17181c] dark:bg-[#17181c] p-6 sm:p-8 shadow-2xl shadow-black/30 ring-1 ring-white/[0.06] before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-accent/50 before:to-transparent hover:border-accent/40"
+                    : "border border-border/40 bg-surface/30 dark:bg-surface/30 p-6 sm:p-8 hover:bg-surface/50 hover:border-border/60"
+                }`}
               >
-                {job.org.charAt(0)}
-              </span>
+                {/* Eyebrow: Differentiate role hierarchy */}
+                <div className="mb-2.5 flex items-center justify-between">
+                  {isLatest ? (
+                    <span className="inline-flex items-center gap-1.5 font-mono text-xs font-semibold text-accent">
+                      <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+                      Most Recent
+                    </span>
+                  ) : (
+                    <span className="font-mono text-xs text-foreground-subtle">
+                      Previous Role
+                    </span>
+                  )}
+                  <span className="font-mono text-xs text-foreground-subtle">
+                    {job.location ? `${job.location} · ` : ""}{job.period}
+                  </span>
+                </div>
 
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-col justify-between gap-x-4 gap-y-0.5 sm:flex-row sm:items-baseline">
-                  <h3 className="text-body-lg font-semibold text-foreground">
+                {/* Left-Aligned Header: No Letter Avatar */}
+                <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-x-4 gap-y-1">
+                  <h3 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">
                     {job.role}{" "}
                     {job.orgUrl ? (
                       <a
                         href={job.orgUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex touch-manipulation items-center gap-0.5 rounded text-accent underline-offset-4 transition-colors hover:text-accent-hover hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                        className="text-accent underline-offset-4 transition-colors hover:text-accent-hover hover:underline inline-flex items-center gap-0.5"
                       >
-                        @ {job.org}
-                        <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
+                        <span>@ {job.org}</span>
+                        <ArrowUpRight className="h-4 w-4 shrink-0" aria-hidden />
                       </a>
                     ) : (
                       <span className="text-accent">@ {job.org}</span>
                     )}
                   </h3>
-                  <span className="shrink-0 text-small text-foreground-subtle">
-                    {job.location} · {job.period}
-                  </span>
                 </div>
-              </div>
-            </div>
 
-            {job.metrics && job.metrics.length > 0 ? (
-              <div className="mt-5">
-                <MetricRow metrics={job.metrics} />
-              </div>
-            ) : null}
+                {/* Three Large Figures on a Hairline Row - strictly left-aligned */}
+                {metrics.length > 0 ? (
+                  <div className="mt-5 grid grid-cols-3 divide-x divide-border/60 border-y border-border/60 py-3.5">
+                    {metrics.slice(0, 3).map((m: any, idx: number) => (
+                      <div
+                        key={idx}
+                        className="flex flex-col px-4 first:pl-0 last:pr-0 text-left"
+                      >
+                        <span className="font-mono text-lg sm:text-xl font-semibold tabular-nums text-foreground tracking-tight">
+                          {m.value}
+                        </span>
+                        <span className="text-xs text-foreground-subtle truncate mt-0.5 font-medium">
+                          {m.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
 
-            <ul className="mt-5 flex flex-col gap-2">
-              {job.highlights.map((point) => (
-                <li
-                  key={point}
-                  className="flex gap-3 text-body text-foreground-muted"
-                >
-                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" aria-hidden />
-                  <span>{point}</span>
-                </li>
-              ))}
-            </ul>
+                {/* Bullet Points with Substantive Accomplishments */}
+                <ul className="mt-5 flex flex-col gap-2.5">
+                  {job.highlights.map((point: string, idx: number) => (
+                    <li
+                      key={`${idx}-${point.substring(0, 10)}`}
+                      className="flex gap-3 text-body text-foreground-muted leading-relaxed"
+                    >
+                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" aria-hidden />
+                      <span>{point}</span>
+                    </li>
+                  ))}
+                </ul>
 
-            {/* Engineer mode adds deeper implementation notes (§4b) */}
-            {isEngineer && job.engineerHighlights && job.engineerHighlights.length > 0 ? (
-              <ul className="mt-3 flex flex-col gap-2 border-l-2 border-border pl-4">
-                {job.engineerHighlights.map((point) => (
-                  <li key={point} className="text-small text-foreground-muted">
-                    {point}
-                  </li>
-                ))}
-              </ul>
-            ) : null}
+                {/* Engineer mode deeper implementation notes (§4b) */}
+                {isEngineer && job.engineerHighlights && job.engineerHighlights.length > 0 ? (
+                  <ul className="mt-3 flex flex-col gap-2 border-l-2 border-border pl-4">
+                    {job.engineerHighlights.map((point: string) => (
+                      <li key={point} className="text-small text-foreground-muted">
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
 
-            <div className="mt-5 flex flex-wrap gap-2">
-              {job.stack.map((tech) => (
-                <span
-                  key={tech}
-                  className="rounded-full border border-border bg-background-subtle px-3 py-1 text-small text-foreground-muted"
-                >
-                  {tech}
-                </span>
-              ))}
-            </div>
-          </div>
-          </Reveal>
-        ))}
+                {/* Tech Stack Tags */}
+                {job.stack && job.stack.length > 0 ? (
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    {job.stack.map((tech: string) => (
+                      <span
+                        key={tech}
+                        className="rounded-full border border-border/80 bg-background px-3 py-1 font-mono text-xs text-foreground-subtle"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+              </article>
+            </Reveal>
+          );
+        })}
       </div>
     </Section>
   );

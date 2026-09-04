@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AudienceModeProvider } from "@/components/audience-mode/context";
 import { ThemeProvider, themeInitScript } from "@/components/theme/theme-provider";
+import Script from "next/script";
 import { TerminalProvider } from "@/components/terminal/context";
 import { Terminal } from "@/components/terminal/terminal";
 import { TerminalTriggers } from "@/components/terminal/terminal-triggers";
@@ -83,10 +84,8 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-      </head>
       <body className="min-h-full flex flex-col">
+        <script suppressHydrationWarning dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <ThemeProvider>
           <AudienceModeProvider>
             <TerminalProvider>

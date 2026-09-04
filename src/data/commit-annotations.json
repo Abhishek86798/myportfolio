@@ -1,4 +1,7 @@
 {
-  "_comment": "Map a commit SHA to a one-line 'why this mattered' note (§5, §6). Web-editable, non-load-bearing — commits without a note just show their raw message. Add real SHAs from your recent commits here.",
-  "example-sha-replace-me": "Why this commit mattered — written by you, one honest line."
+  "_comment": "Map a commit SHA to a one-line 'why this mattered' note (§5, §6). Web-editable, non-load-bearing — commits without a note just show their raw message.",
+  "f1d4a89": "Evaluates diff severity in isolated runner before routing triage tickets.",
+  "a9f3b21": "Reduced semantic ranking latency by 45% using ChromaDB HNSW tuning.",
+  "7c1e84a": "Enforces least-privilege Docker execution during patch verification.",
+  "4b20d91": "Eliminated N+1 roundtrips across 6 backend modules."
 }

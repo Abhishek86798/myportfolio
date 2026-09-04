@@ -16,11 +16,19 @@ import { buildSpotlightIndex } from "@/lib/spotlight-index";
 // Rebuild the page's live data at most hourly (ISR) — §0.
 export const revalidate = 3600;
 
+import { sanityFetch } from "@/sanity/client";
+import { journeyQuery, experienceQuery, skillsQuery, projectsQuery, siteSettingsQuery } from "@/sanity/queries";
+
 export default async function Home() {
-  const [stats, coding, posts] = await Promise.all([
+  const [stats, coding, posts, journeyData, experienceData, skillsData, projectsData, settingsData] = await Promise.all([
     getGitHubStats(),
     getCodingStats(),
     getAllPosts(),
+    sanityFetch({ query: journeyQuery, tags: ["journey"] }),
+    sanityFetch({ query: experienceQuery, tags: ["experience"] }),
+    sanityFetch({ query: skillsQuery, tags: ["skill"] }),
+    sanityFetch({ query: projectsQuery, tags: ["project"] }),
+    sanityFetch({ query: siteSettingsQuery, tags: ["siteSettings"] }),
   ]);
   const spotlightIndex = buildSpotlightIndex(posts);
 
@@ -28,18 +36,18 @@ export default async function Home() {
     <>
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-small focus:font-medium focus:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background"
+        className="sr-only focus:not-sr-only fixed -top-full left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-small focus:font-medium focus:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background"
       >
         Skip to content
       </a>
       <Nav spotlightIndex={spotlightIndex} />
       <main id="main" tabIndex={-1} className="flex flex-1 flex-col outline-none">
-        <Hero />
+        <Hero settings={settingsData as any} stats={stats} />
         <About />
-        <Journey />
-        <Experience />
-        <Skills />
-        <Projects />
+        <Experience data={experienceData as any} />
+        <Projects data={projectsData as any} />
+        <Skills data={skillsData as any} />
+        <Journey data={journeyData as any} />
         <Dashboard stats={stats} coding={coding} />
         <Blog posts={posts} />
       </main>

@@ -142,6 +142,7 @@ export function Spotlight({ items }: { items: SpotlightItem[] }) {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Open search (Command K)"
+        title="Search (⌘K)"
         className="inline-flex h-9 items-center gap-2 rounded-lg border border-border px-2.5 text-small text-foreground-subtle transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
         <Search className="h-4 w-4" aria-hidden />
@@ -168,7 +169,9 @@ export function Spotlight({ items }: { items: SpotlightItem[] }) {
               >
                 {/* Search input */}
                 <div className="flex items-center gap-3 border-b border-border px-4">
-                  <Search className="h-5 w-5 shrink-0 text-foreground-subtle" aria-hidden />
+                  <span className="font-mono text-sm font-bold text-accent select-none shrink-0" aria-hidden>
+                    ❯
+                  </span>
                   <input
                     ref={inputRef}
                     type="text"
@@ -179,10 +182,10 @@ export function Spotlight({ items }: { items: SpotlightItem[] }) {
                     aria-activedescendant={
                       results[activeIndex] ? `spotlight-opt-${activeIndex}` : undefined
                     }
-                    placeholder="Search sections, projects, writing…"
+                    placeholder="search paths, projects, sections…"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    className="h-14 w-full bg-transparent text-body text-foreground placeholder:text-foreground-subtle focus:outline-none"
+                    className="h-14 w-full bg-transparent font-mono text-small text-foreground placeholder:text-foreground-subtle focus:outline-none"
                   />
                 </div>
 
@@ -195,19 +198,23 @@ export function Spotlight({ items }: { items: SpotlightItem[] }) {
                   className="max-h-[50vh] overflow-y-auto p-2"
                 >
                   {results.length === 0 ? (
-                    <li className="px-3 py-8 text-center text-small text-foreground-muted">
-                      No results for “{query}”
+                    <li className="px-3 py-8 text-center font-mono text-xs text-foreground-subtle">
+                      no matches
                     </li>
                   ) : (
                     grouped.map(({ group, items: groupItems }) => (
                       <li key={group}>
-                        <p className="px-3 pb-1 pt-3 text-[0.7rem] font-medium uppercase tracking-widest text-foreground-subtle">
-                          {group}
+                        <p className="px-3 pb-1 pt-3 font-mono text-[0.7rem] font-semibold uppercase tracking-widest text-foreground-subtle">
+                          // {group.toUpperCase()}
                         </p>
                         <ul>
                           {groupItems.map((item) => {
                             const flatIndex = results.indexOf(item);
                             const isActive = flatIndex === activeIndex;
+                            const displayPath = item.href.startsWith("#")
+                              ? `/${item.href.slice(1)}`
+                              : item.href.replace(/^https?:\/\//, "");
+
                             return (
                               <li key={item.id} role="presentation">
                                 <button
@@ -218,13 +225,20 @@ export function Spotlight({ items }: { items: SpotlightItem[] }) {
                                   aria-selected={isActive}
                                   onClick={() => go(item)}
                                   onMouseMove={() => setActiveIndex(flatIndex)}
-                                  className={`flex min-h-11 w-full touch-manipulation items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left text-body transition-colors ${
+                                  className={`flex min-h-11 w-full touch-manipulation items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left transition-colors ${
                                     isActive
                                       ? "bg-accent-subtle text-accent-strong-strong"
-                                      : "text-foreground-muted"
+                                      : "text-foreground-muted hover:bg-surface"
                                   }`}
                                 >
-                                  <span className="truncate">{item.label}</span>
+                                  <div className="flex items-center gap-2 truncate font-mono text-xs">
+                                    <span className="text-foreground font-medium truncate">
+                                      {displayPath}
+                                    </span>
+                                    <span className="text-foreground-subtle truncate">
+                                      · {item.label}
+                                    </span>
+                                  </div>
                                   {isActive ? (
                                     <CornerDownLeft className="h-4 w-4 shrink-0 opacity-70" aria-hidden />
                                   ) : null}
