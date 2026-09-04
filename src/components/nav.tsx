@@ -14,10 +14,10 @@ import { cn } from "@/lib/utils";
 // while still showing it in the roomier mobile menu. Scroll-spy observes all.
 const NAV_LINKS = [
   { href: "#about", id: "about", label: "About" },
-  { href: "#journey", id: "journey", label: "Journey" },
   { href: "#experience", id: "experience", label: "Experience" },
-  { href: "#skills", id: "skills", label: "Skills" },
   { href: "#projects", id: "projects", label: "Projects" },
+  { href: "#skills", id: "skills", label: "Skills" },
+  { href: "#journey", id: "journey", label: "Journey" },
   { href: "#dashboard", id: "dashboard", label: "Dashboard", desktop: false },
   { href: "#blog", id: "blog", label: "Blog" },
 ];
@@ -124,6 +124,23 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
     wasOpen.current = menuOpen;
   }, [menuOpen]);
 
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith("#")) {
+      e.preventDefault();
+      const target = document.querySelector(href);
+      if (target) {
+        const headerOffset = 88; // 64px header + 24px clearance
+        const elementPosition = target.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.scrollY - headerOffset;
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        });
+        history.pushState(null, "", href);
+      }
+    }
+  };
+
   return (
     <header
       className={cn(
@@ -149,6 +166,7 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
               <li key={link.href}>
                 <a
                   href={link.href}
+                  onClick={(e) => handleNavClick(e, link.href)}
                   aria-current={active === link.id ? "true" : undefined}
                   className={cn(
                     "relative touch-manipulation rounded-lg px-3 py-2 text-small transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background",
@@ -214,7 +232,10 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
                     <li key={link.href}>
                       <a
                         href={link.href}
-                        onClick={() => setMenuOpen(false)}
+                        onClick={(e) => {
+                          setMenuOpen(false);
+                          handleNavClick(e, link.href);
+                        }}
                         aria-current={active === link.id ? "true" : undefined}
                         className={cn(
                           "flex touch-manipulation items-center rounded-lg px-4 py-3 text-body transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background",
