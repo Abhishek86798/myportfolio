@@ -1,57 +1,33 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, type ReactNode } from "react";
 
-type Theme = "light" | "dark";
+type Theme = "dark";
 
 const ThemeContext = createContext<{
   theme: Theme;
-  toggle: () => void;
-} | null>(null);
+}>({ theme: "dark" });
 
-/**
- * Inline script run before paint to set data-theme from localStorage or system
- * preference — prevents a flash of the wrong theme. Injected in <head> via layout.
- */
 export const themeInitScript = `
 (function() {
-  try {
-    var stored = localStorage.getItem('theme');
-    var theme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    document.documentElement.setAttribute('data-theme', theme);
-  } catch (e) {}
+  document.documentElement.setAttribute('data-theme', 'dark');
+  document.documentElement.classList.add('dark');
 })();
 `;
 
-function getInitialTheme(): Theme {
-  if (typeof document === "undefined") return "dark";
-  return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
-}
-
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(getInitialTheme);
-
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-  }, [theme]);
-
-  const toggle = () => {
-    setTheme((prev) => {
-      const next = prev === "dark" ? "light" : "dark";
-      try {
-        localStorage.setItem("theme", next);
-      } catch {}
-      return next;
-    });
-  };
+    document.documentElement.setAttribute("data-theme", "dark");
+    document.documentElement.classList.add("dark");
+  }, []);
 
   return (
-    <ThemeContext.Provider value={{ theme, toggle }}>{children}</ThemeContext.Provider>
+    <ThemeContext.Provider value={{ theme: "dark" }}>
+      {children}
+    </ThemeContext.Provider>
   );
 }
 
 export function useTheme() {
-  const ctx = useContext(ThemeContext);
-  if (!ctx) throw new Error("useTheme must be used within ThemeProvider");
-  return ctx;
+  return useContext(ThemeContext);
 }

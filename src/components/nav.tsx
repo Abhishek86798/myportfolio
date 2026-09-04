@@ -3,15 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ArrowUpRight } from "lucide-react";
 import { siteConfig } from "@/data/site.config";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { GithubIcon, LinkedinIcon } from "@/components/ui/brand-icons";
 import { Spotlight } from "@/components/spotlight/spotlight";
 import type { SpotlightItem } from "@/lib/spotlight";
 import { cn } from "@/lib/utils";
 
-// `desktop: false` keeps a section out of the (space-constrained) desktop bar
-// while still showing it in the roomier mobile menu. Scroll-spy observes all.
+// Desktop nav displays the primary 6 sections inside the centered floating pill.
+// All 7 sections (including Dashboard) are available in the mobile drawer and Spotlight.
 const NAV_LINKS = [
   { href: "#about", id: "about", label: "About" },
   { href: "#experience", id: "experience", label: "Experience" },
@@ -56,13 +56,10 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
-  // Portal target — the header's backdrop-blur creates a containing block for
-  // `position: fixed` descendants, which traps the overlay inside its own
-  // (content-sized) box instead of the viewport. Render outside it instead.
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  // Track scroll position to transition header from transparent (at top) to blurred with bottom hairline.
+  // Track scroll position to transition header from transparent to backdrop-blurred with hairline border.
   useEffect(() => {
     const onScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -72,7 +69,7 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Lock body scroll while the mobile menu is open.
+  // Lock body scroll while mobile menu is open.
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
     return () => {
@@ -111,8 +108,7 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [menuOpen]);
 
-  // Move focus into the panel on open; restore to the trigger on close.
-  // Skip the initial render so we don't grab focus on page load.
+  // Move focus into the panel on open; restore to trigger on close.
   const wasOpen = useRef(false);
   useEffect(() => {
     if (menuOpen) {
@@ -146,109 +142,211 @@ export function Nav({ spotlightIndex }: { spotlightIndex: SpotlightItem[] }) {
       className={cn(
         "sticky top-0 z-50 border-t-0 transition-all duration-200",
         isScrolled
-          ? "border-b border-border/60 bg-background/80 backdrop-blur-md"
-          : "border-b border-transparent bg-transparent"
+          ? "border-b border-border/70 bg-background/85 backdrop-blur-md shadow-xs"
+          : "border-b border-transparent bg-background/40 backdrop-blur-xs"
       )}
     >
       <nav className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6 md:px-12">
-        <Link
-          href="/"
-          className="touch-manipulation rounded-lg text-body font-semibold tracking-tight text-foreground transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-        >
-          {siteConfig.name.split(" ")[0]}
-          <span className="text-accent">.</span>
-        </Link>
+        {/* Left: Brand Identity + Live Status Badge */}
+        <div className="flex items-center gap-3">
+          <Link
+            href="/"
+            onClick={(e) => {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: "smooth" });
+              history.pushState(null, "", "/");
+            }}
+            className="group flex items-center gap-1.5 rounded-lg text-sm font-semibold tracking-tight text-foreground transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          >
+            <span className="font-mono text-sm tracking-tight text-foreground group-hover:text-accent transition-colors">
+              {siteConfig.name.split(" ")[0]}
+              <span className="text-accent">.</span>
+            </span>
+          </Link>
 
-        <div className="flex items-center gap-1">
-          {/* Desktop links (space-constrained subset) */}
-          <ul className="mr-2 hidden items-center gap-1 md:flex">
-            {DESKTOP_LINKS.map((link) => (
-              <li key={link.href}>
-                <a
-                  href={link.href}
-                  onClick={(e) => handleNavClick(e, link.href)}
-                  aria-current={active === link.id ? "true" : undefined}
-                  className={cn(
-                    "relative touch-manipulation rounded-lg px-3 py-2 text-small transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                    active === link.id
-                      ? "text-accent font-medium after:absolute after:bottom-0 after:left-3 after:right-3 after:h-px after:bg-accent"
-                      : "text-foreground-muted hover:text-foreground"
-                  )}
-                >
-                  {link.label}
-                </a>
-              </li>
-            ))}
+          <div className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-accent/25 bg-accent/10 px-2 py-0.5 text-[11px] font-mono text-accent">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+            </span>
+            <span>available</span>
+          </div>
+        </div>
+
+        {/* Center: Sleek floating segmented pill navigation on desktop */}
+        <div className="hidden md:flex items-center">
+          <ul className="flex items-center gap-0.5 rounded-full border border-border/80 bg-surface/80 p-1 backdrop-blur-md shadow-xs">
+            {DESKTOP_LINKS.map((link) => {
+              const isActive = active === link.id;
+              return (
+                <li key={link.href}>
+                  <a
+                    href={link.href}
+                    onClick={(e) => handleNavClick(e, link.href)}
+                    aria-current={isActive ? "true" : undefined}
+                    className={cn(
+                      "relative rounded-full px-3 py-1 text-xs font-mono transition-all duration-150",
+                      isActive
+                        ? "bg-accent/15 text-accent font-medium shadow-xs"
+                        : "text-foreground-muted hover:text-foreground hover:bg-white/[0.04]"
+                    )}
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              );
+            })}
           </ul>
+        </div>
 
+        {/* Right: Spotlight, GitHub Profile, Contact CTA & Mobile Menu Trigger */}
+        <div className="flex items-center gap-2">
           <Spotlight items={spotlightIndex} />
-          <ThemeToggle />
+
+          <a
+            href={siteConfig.links.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="GitHub profile"
+            title="GitHub profile"
+            className="hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border text-foreground-muted transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          >
+            <GithubIcon className="h-4 w-4" />
+          </a>
+
+          <a
+            href={`mailto:${siteConfig.email}`}
+            aria-label="Get in touch"
+            className="hidden lg:inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-border text-xs font-mono text-foreground-muted transition-colors hover:border-accent/60 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          >
+            <span>contact</span>
+            <ArrowUpRight className="h-3.5 w-3.5 text-accent" />
+          </a>
 
           {/* Mobile menu trigger */}
           <button
             ref={triggerRef}
             type="button"
             onClick={() => setMenuOpen(true)}
-            aria-label="Open menu"
+            aria-label="Open navigation menu"
             aria-expanded={menuOpen}
             aria-haspopup="dialog"
-            className="inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-lg border border-border text-foreground-muted transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background md:hidden"
+            className="inline-flex h-9 w-9 touch-manipulation items-center justify-center rounded-lg border border-border text-foreground-muted transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:hidden"
           >
-            <Menu className="h-5 w-5" aria-hidden />
+            <Menu className="h-4 w-4" aria-hidden />
           </button>
         </div>
       </nav>
 
-      {/* Mobile menu overlay — portaled to document.body, see `mounted` note above */}
+      {/* Mobile menu overlay — portaled to document.body */}
       {menuOpen && mounted
         ? createPortal(
             <div className="fixed inset-0 z-[60] md:hidden">
+              {/* Backdrop */}
               <div
-                className="absolute inset-0 bg-background/60 backdrop-blur-sm"
+                className="absolute inset-0 bg-background/80 backdrop-blur-sm transition-opacity"
                 onClick={() => setMenuOpen(false)}
                 aria-hidden
               />
+
+              {/* Slide-over Drawer */}
               <div
                 ref={panelRef}
                 role="dialog"
                 aria-modal="true"
                 aria-label="Navigation menu"
-                className="absolute right-0 top-0 flex h-full w-72 max-w-[80vw] flex-col border-l border-border bg-background p-6"
+                className="absolute right-0 top-0 flex h-full w-80 max-w-[85vw] flex-col justify-between border-l border-border bg-background p-6 shadow-2xl"
               >
-                <div className="flex items-center justify-between">
-                  <span className="text-body font-semibold text-foreground">Menu</span>
-                  <button
-                    type="button"
-                    onClick={() => setMenuOpen(false)}
-                    aria-label="Close menu"
-                    className="inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-lg border border-border text-foreground-muted transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  >
-                    <X className="h-5 w-5" aria-hidden />
-                  </button>
+                <div>
+                  {/* Drawer Header */}
+                  <div className="flex items-center justify-between border-b border-border/60 pb-4">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-sm font-semibold tracking-tight text-foreground">
+                        {siteConfig.name.split(" ")[0]}
+                        <span className="text-accent">.</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent/10 px-2 py-0.5 text-[10px] font-mono text-accent">
+                        <span className="relative flex h-1.5 w-1.5">
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
+                          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+                        </span>
+                        <span>available</span>
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setMenuOpen(false)}
+                      aria-label="Close menu"
+                      className="inline-flex h-8 w-8 touch-manipulation items-center justify-center rounded-lg border border-border text-foreground-muted transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                    >
+                      <X className="h-4 w-4" aria-hidden />
+                    </button>
+                  </div>
+
+                  {/* Navigation Links */}
+                  <ul className="mt-6 flex flex-col gap-1.5">
+                    {NAV_LINKS.map((link, idx) => {
+                      const isActive = active === link.id;
+                      return (
+                        <li key={link.href}>
+                          <a
+                            href={link.href}
+                            onClick={(e) => {
+                              setMenuOpen(false);
+                              handleNavClick(e, link.href);
+                            }}
+                            aria-current={isActive ? "true" : undefined}
+                            className={cn(
+                              "flex items-center justify-between touch-manipulation rounded-lg px-3.5 py-2.5 text-sm font-mono transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+                              isActive
+                                ? "bg-accent/15 text-accent font-medium border border-accent/20"
+                                : "text-foreground-muted hover:bg-surface hover:text-foreground"
+                            )}
+                          >
+                            <span>{link.label}</span>
+                            <span className="text-xs text-foreground-subtle">
+                              0{idx + 1}
+                            </span>
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </div>
 
-                <ul className="mt-6 flex flex-col gap-1">
-                  {NAV_LINKS.map((link) => (
-                    <li key={link.href}>
+                {/* Drawer Footer info & social links */}
+                <div className="border-t border-border/60 pt-4 flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-mono text-foreground-subtle">Connect</span>
+                    <div className="flex items-center gap-2">
                       <a
-                        href={link.href}
-                        onClick={(e) => {
-                          setMenuOpen(false);
-                          handleNavClick(e, link.href);
-                        }}
-                        aria-current={active === link.id ? "true" : undefined}
-                        className={cn(
-                          "flex touch-manipulation items-center rounded-lg px-4 py-3 text-body transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                          active === link.id
-                            ? "bg-accent-subtle text-accent-strong font-medium"
-                            : "text-foreground-muted hover:bg-background-subtle hover:text-foreground"
-                        )}
+                        href={siteConfig.links.github}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="GitHub profile"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border text-foreground-muted transition-colors hover:border-accent hover:text-accent"
                       >
-                        {link.label}
+                        <GithubIcon className="h-4 w-4" />
                       </a>
-                    </li>
-                  ))}
-                </ul>
+                      <a
+                        href={siteConfig.links.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="LinkedIn profile"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border text-foreground-muted transition-colors hover:border-accent hover:text-accent"
+                      >
+                        <LinkedinIcon className="h-4 w-4" />
+                      </a>
+                    </div>
+                  </div>
+                  <a
+                    href={`mailto:${siteConfig.email}`}
+                    className="flex items-center justify-between rounded-lg border border-border/80 bg-surface/40 px-3 py-2 text-xs font-mono text-foreground-muted transition-colors hover:border-accent/40 hover:text-foreground"
+                  >
+                    <span className="truncate">{siteConfig.email}</span>
+                    <ArrowUpRight className="h-3 w-3 shrink-0 text-accent" />
+                  </a>
+                </div>
               </div>
             </div>,
             document.body
