@@ -15,45 +15,73 @@ const LEVEL_CLASS = [
 
 const DAY_LABELS = ["", "Mon", "", "Wed", "", "Fri", ""];
 
-type MonthGroup = {
-  key: string;
-  label: string;
-  year: number;
-  weeks: ContributionDay[][];
-};
-
 const MONTH_NAMES = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 ];
 
-function groupWeeksByMonth(weeks: ContributionDay[][]): MonthGroup[] {
-  const groups: MonthGroup[] = [];
+type CalendarMonth = {
+  key: string;
+  label: string;
+  year: number;
+  columns: (ContributionDay | null)[][];
+};
 
-  for (const week of weeks) {
-    if (week.length === 0) continue;
-    // Use the middle day (Wednesday, index 3 or closest) to represent the week's month
-    const refDay = week[Math.min(3, week.length - 1)];
-    const parts = refDay.date.split("-");
-    const year = parseInt(parts[0], 10);
-    const monthIndex = parseInt(parts[1], 10) - 1;
-    const key = `${year}-${String(monthIndex + 1).padStart(2, "0")}`;
-    const label = MONTH_NAMES[monthIndex];
+function buildCalendarMonths(weeks: ContributionDay[][]): CalendarMonth[] {
+  const allDays = weeks.flat();
+  if (allDays.length === 0) return [];
 
-    const lastGroup = groups[groups.length - 1];
-    if (!lastGroup || lastGroup.key !== key) {
-      groups.push({
-        key,
-        label,
-        year,
-        weeks: [week],
-      });
-    } else {
-      lastGroup.weeks.push(week);
-    }
+  // Group strictly by calendar month (YYYY-MM)
+  const monthKeys: string[] = [];
+  for (const d of allDays) {
+    const m = d.date.slice(0, 7);
+    if (!monthKeys.includes(m)) monthKeys.push(m);
   }
 
-  return groups;
+  // If the leading month has <= 2 days (e.g. trailing Aug 31 from previous year),
+  // omit it so the calendar starts clean on the 1st of the full month
+  const validMonthKeys = monthKeys.filter((mKey, idx) => {
+    const count = allDays.filter((d) => d.date.startsWith(mKey)).length;
+    if (idx === 0 && count <= 2) return false;
+    return true;
+  });
+
+  return validMonthKeys.map((mKey) => {
+    const [yearStr, monthStr] = mKey.split("-");
+    const year = parseInt(yearStr, 10);
+    const monthIdx = parseInt(monthStr, 10) - 1;
+
+    const monthDays = allDays.filter((d) => d.date.startsWith(mKey));
+
+    const columns: (ContributionDay | null)[][] = [];
+    let currentCol: (ContributionDay | null)[] = new Array(7).fill(null);
+
+    for (const day of monthDays) {
+      const parts = day.date.split("-");
+      const dateObj = new Date(
+        Date.UTC(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10))
+      );
+      const dayOfWeek = dateObj.getUTCDay(); // 0 = Sun, 1 = Mon, ..., 6 = Sat
+
+      currentCol[dayOfWeek] = day;
+
+      if (dayOfWeek === 6) {
+        columns.push(currentCol);
+        currentCol = new Array(7).fill(null);
+      }
+    }
+
+    if (currentCol.some((d) => d !== null)) {
+      columns.push(currentCol);
+    }
+
+    return {
+      key: mKey,
+      label: MONTH_NAMES[monthIdx],
+      year,
+      columns,
+    };
+  });
 }
 
 export function Heatmap({
@@ -107,9 +135,9 @@ export function Heatmap({
     return { activeDays: active, longestStreak: longest, total: tot };
   }, [calendar]);
 
-  // Group the weekly columns by month to cleanly separate dots month-by-month
-  const monthGroups = useMemo(() => {
-    return groupWeeksByMonth(calendar.weeks);
+  // Build true calendar months with exact day counts and centered headers
+  const calendarMonths = useMemo(() => {
+    return buildCalendarMonths(calendar.weeks);
   }, [calendar.weeks]);
 
   return (
@@ -146,7 +174,7 @@ export function Heatmap({
         </div>
       </div>
 
-      {/* Horizontally scrollable calendar with Month-Separated dots */}
+      {/* Horizontally scrollable calendar with true calendar months */}
       <div className="mt-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-border">
         <div className="min-w-max flex items-start">
           {/* Day of week labels on left (Mon, Wed, Fri) aligned with 7 dot rows */}
@@ -165,26 +193,36 @@ export function Heatmap({
             </div>
           </div>
 
-          {/* Month Groups with visual separation between months */}
+          {/* Month Groups with exact calendar days and centered month headers */}
           <div
-            className="flex items-start gap-2.5 sm:gap-3.5"
+            className="flex items-start gap-2 sm:gap-3"
             role="img"
             aria-label={`${total} contributions on GitHub`}
           >
-            {monthGroups.map((group) => (
-              <div key={group.key} className="flex flex-col shrink-0">
-                {/* Month Name Header */}
-                <div className="h-4 mb-1.5 flex items-center">
+            {calendarMonths.map((month) => (
+              <div key={month.key} className="flex flex-col shrink-0">
+                {/* Month Name Header - PROPERLY CENTERED */}
+                <div className="h-4 mb-1.5 flex items-center justify-center text-center">
                   <span className="font-mono text-[10px] font-medium text-foreground-subtle select-none">
-                    {group.label}
+                    {month.label}
                   </span>
                 </div>
 
                 {/* Week Columns of Dots for this Month */}
                 <div className="flex gap-1 sm:gap-1.5">
-                  {group.weeks.map((week, wi) => (
-                    <div key={wi} className="flex flex-col gap-1 sm:gap-1.5">
-                      {week.map((day) => {
+                  {month.columns.map((col, colIdx) => (
+                    <div key={colIdx} className="flex flex-col gap-1 sm:gap-1.5">
+                      {col.map((day, rowIdx) => {
+                        if (!day) {
+                          return (
+                            <span
+                              key={`empty-${rowIdx}`}
+                              className="h-2.5 sm:h-3 w-2.5 sm:w-3 invisible pointer-events-none"
+                              aria-hidden="true"
+                            />
+                          );
+                        }
+
                         const tooltip =
                           day.count > 0
                             ? `${day.count} contribution${
